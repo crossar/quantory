@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import BottomNav from '../components/BottomNav';
 
 export default function ToBuyPage() {
   const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState('');
+  const [input, setInput] = useState('');
 
   useEffect(() => {
     fetch('/api/to-buy')
@@ -10,25 +11,29 @@ export default function ToBuyPage() {
       .then(data => setItems(data));
   }, []);
 
-  const handleAdd = async (e) => {
-    e.preventDefault();
-    if (!newItem.trim()) return;
+  const addItem = async () => {
+    if (!input.trim()) return;
 
-    const res = await fetch('/api/add-to-buy', {
+    const res = await fetch('/api/to-buy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newItem }),
+      body: JSON.stringify({ name: input.trim() }),
     });
 
     if (res.ok) {
-      const added = await res.json();
-      setItems([added, ...items]);
-      setNewItem('');
+      const newItem = await res.json();
+      setItems([...items, newItem]);
+      setInput('');
+    } else {
+      alert('Failed to add item');
     }
   };
 
   const handleDelete = async (id) => {
-    const res = await fetch('/api/delete-to-buy', {
+    const confirm = window.confirm('Remove this from your list?');
+    if (!confirm) return;
+
+    const res = await fetch('/api/to-buy', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
@@ -36,32 +41,42 @@ export default function ToBuyPage() {
 
     if (res.ok) {
       setItems(items.filter(item => item.id !== id));
+    } else {
+      alert('Failed to delete item');
     }
   };
 
   return (
-    <div>
-      <h1>🛒 To Buy</h1>
-      <form onSubmit={handleAdd} style={{ marginBottom: '1rem' }}>
-        <input
-          value={newItem}
-          onChange={e => setNewItem(e.target.value)}
-          placeholder="Enter item..."
-        />
-        <button type="submit">Add</button>
-      </form>
-      {items.length === 0 ? (
-        <p>No items yet.</p>
-      ) : (
-        <ul>
-          {items.map(item => (
-            <li key={item.id}>
-              {item.name}{' '}
-              <button onClick={() => handleDelete(item.id)}>❌</button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <>
+      <div className="container">
+        <h1>🛒 To Buy</h1>
+
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+          <input
+            type="text"
+            placeholder="Enter item..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            style={{ flex: 1 }}
+          />
+          <button onClick={addItem}>Add</button>
+        </div>
+
+        {items.length === 0 ? (
+          <p>No items in your list.</p>
+        ) : (
+          <ul className="item-list">
+            {items.map(item => (
+              <li key={item.id} className="item-card">
+                <span>{item.name}</span>
+                <button onClick={() => handleDelete(item.id)}>❌</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <BottomNav />
+    </>
   );
 }
