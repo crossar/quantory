@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import BottomNav from '../components/BottomNav';
 
 export default function ExpiringSoonPage() {
   const [items, setItems] = useState([]);
@@ -31,20 +32,26 @@ export default function ExpiringSoonPage() {
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: 'auto', padding: '1rem' }}>
-      <h1>Expiring Soon (Next 3 Days)</h1>
-      {items.length === 0 ? (
-        <p>No items expiring soon.</p>
-      ) : (
-        <ul>
-          {items.map(item => (
-            <li key={item.id}>
-              {item.name} (Qty: {item.quantity}) — expires on <strong>{formatDate(item.expiresAt)}</strong>{' '}
-              <button onClick={() => handleDelete(item.id)}>❌</button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <>
+      <div className="container">
+        <h1>Expiring Soon (Next 3 Days)</h1>
+        {items.length === 0 ? (
+          <p>No items expiring soon.</p>
+        ) : (
+          <ul className="item-list">
+            {items.map(item => (
+              <li key={item.id} className="item-card">
+                <span>
+                  {item.name} (Qty: {item.quantity}) — expires on{' '}
+                  <strong>{formatDate(item.expiresAt)}</strong>
+                </span>
+                <button onClick={() => handleDelete(item.id)}>❌</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <BottomNav />
+    </>
   );
 }
