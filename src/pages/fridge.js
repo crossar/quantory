@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import BottomNav from '../components/BottomNav';
 import ItemListPage from '../components/ItemListPage';
+import AddItemForm from '../components/AddItemForm';
 
 export default function FridgePage() {
   const [items, setItems] = useState([]);
@@ -27,7 +28,22 @@ export default function FridgePage() {
 
   return (
     <>
-      <ItemListPage title="Fridge Inventory" items={items} onDelete={handleDelete} />
+      <div className="container">
+        <h1>Fridge Inventory</h1>
+        <AddItemForm location="fridge" onItemAdded={(item) => setItems(prev => [...prev, item])} />
+        {items.length === 0 ? (
+          <p>No items found.</p>
+        ) : (
+          <ul className="item-list">
+            {items.map(item => (
+              <li key={item.id} className="item-card">
+                <span>{item.name} (Qty: {item.quantity})</span>
+                <button onClick={() => handleDelete(item.id)}>❌</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
       <BottomNav />
     </>
   );
