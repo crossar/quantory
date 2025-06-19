@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import BottomNav from '../components/BottomNav';
-import ItemListPage from '../components/ItemListPage';
+import AddItemForm from '../components/AddItemForm';
 
 export default function StorageRoomPage() {
   const [items, setItems] = useState([]);
@@ -27,7 +27,18 @@ export default function StorageRoomPage() {
 
   return (
     <>
-      <ItemListPage title="Storage Room Inventory" items={items} onDelete={handleDelete} />
+      <div className="container">
+        <h1>Storage Room Inventory</h1>
+        <AddItemForm location="storage" onItemAdded={(item) => setItems(prev => [...prev, item])} />
+        <ul className="item-list">
+          {items.map(item => (
+            <li key={item.id} className="item-card">
+              <span>{item.name} (Qty: {item.quantity})</span>
+              <button onClick={() => handleDelete(item.id)}>❌</button>
+            </li>
+          ))}
+        </ul>
+      </div>
       <BottomNav />
     </>
   );

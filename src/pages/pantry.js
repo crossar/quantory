@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import BottomNav from '../components/BottomNav';
-import ItemListPage from '../components/ItemListPage';
+import AddItemForm from '../components/AddItemForm';
 
 export default function PantryPage() {
   const [items, setItems] = useState([]);
@@ -27,7 +27,18 @@ export default function PantryPage() {
 
   return (
     <>
-      <ItemListPage title="Pantry Inventory" items={items} onDelete={handleDelete} />
+      <div className="container">
+        <h1>Pantry Inventory</h1>
+        <AddItemForm location="pantry" onItemAdded={(item) => setItems(prev => [...prev, item])} />
+        <ul className="item-list">
+          {items.map(item => (
+            <li key={item.id} className="item-card">
+              <span>{item.name} (Qty: {item.quantity})</span>
+              <button onClick={() => handleDelete(item.id)}>❌</button>
+            </li>
+          ))}
+        </ul>
+      </div>
       <BottomNav />
     </>
   );
