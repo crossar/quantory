@@ -9,7 +9,13 @@ export default function ItemListPage({ title, items, onDelete }) {
           {items.map(item => (
             <li key={item.id} className="item-card">
               <span>{item.name} (Qty: {item.quantity})</span>
-              <button onClick={() => onDelete(item.id)}>❌</button>
+              <button onClick={() => {
+                if (window.confirm('Are you sure you want to delete this item?')) {
+                  onDelete(item.id);
+                }
+              }}>
+                ❌
+              </button>
             </li>
           ))}
         </ul>

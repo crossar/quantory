@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import BottomNav from '../components/BottomNav';
 import ItemListPage from '../components/ItemListPage';
 
 export default function FridgePage() {
@@ -11,13 +12,23 @@ export default function FridgePage() {
   }, []);
 
   const handleDelete = async (id) => {
-    await fetch('/api/items', {
+    const res = await fetch('/api/delete-item', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
-    setItems(items.filter(i => i.id !== id));
+
+    if (res.ok) {
+      setItems(items.filter(item => item.id !== id));
+    } else {
+      alert('Failed to delete item');
+    }
   };
 
-  return <ItemListPage title="Fridge Inventory" items={items} onDelete={handleDelete} />;
+  return (
+    <>
+      <ItemListPage title="Fridge Inventory" items={items} onDelete={handleDelete} />
+      <BottomNav />
+    </>
+  );
 }
