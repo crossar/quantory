@@ -11,19 +11,15 @@ export default function Home() {
   ];
 
   return (
-    <div style={{ maxWidth: '600px', margin: 'auto', padding: '1rem', paddingBottom: '4rem' }}>
+    <div className="container">
       <h1>Inventory</h1>
-      <ul>
+      <div className="card-list">
         {data.map(item => (
-          <li key={item.name}>
-            <Link href={item.href}>
-              {item.name} →
-            </Link>
-          </li>
+          <Link key={item.name} href={item.href} className="card">
+            {item.name} →
+          </Link>
         ))}
-      </ul>
-
-      {/* Make sure this is inside the return */}
+      </div>
       <BottomNav />
     </div>
   );
