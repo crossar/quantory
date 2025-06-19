@@ -1,5 +1,5 @@
-import BottomNav from '../components/BottomNav';
 import { useEffect, useState } from 'react';
+import ItemListPage from '../components/ItemListPage';
 
 export default function FridgePage() {
   const [items, setItems] = useState([]);
@@ -11,37 +11,13 @@ export default function FridgePage() {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirm = window.confirm('Are you sure you want to delete this item?');
-    if (!confirm) return;
-
-    const res = await fetch('/api/delete-item', {
+    await fetch('/api/items', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
-
-    if (res.ok) {
-      setItems(items.filter(item => item.id !== id));
-    } else {
-      alert('Failed to delete item');
-    }
+    setItems(items.filter(i => i.id !== id));
   };
 
-  return (
-    <div style={{ maxWidth: '600px', margin: 'auto', padding: '1rem' }}>
-      <h1>Fridge Inventory</h1>
-      {items.length === 0 ? (
-        <p>No items found.</p>
-      ) : (
-        <ul>
-          {items.map(item => (
-            <li key={item.id}>
-              {item.name} (Qty: {item.quantity}){' '}
-              <button onClick={() => handleDelete(item.id)}>❌</button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+  return <ItemListPage title="Fridge Inventory" items={items} onDelete={handleDelete} />;
 }
