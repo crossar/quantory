@@ -1,3 +1,4 @@
+import BottomNav from '../components/BottomNav';
 import { useEffect, useState } from 'react';
 
 export default function FridgePage() {

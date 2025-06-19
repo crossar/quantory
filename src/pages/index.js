@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import BottomNav from '../components/BottomNav';
 
 export default function Home() {
   const data = [
@@ -10,7 +11,7 @@ export default function Home() {
   ];
 
   return (
-    <div style={{ maxWidth: '600px', margin: 'auto', padding: '1rem' }}>
+    <div style={{ maxWidth: '600px', margin: 'auto', padding: '1rem', paddingBottom: '4rem' }}>
       <h1>Inventory</h1>
       <ul>
         {data.map(item => (
@@ -21,6 +22,9 @@ export default function Home() {
           </li>
         ))}
       </ul>
+
+      {/* Make sure this is inside the return */}
+      <BottomNav />
     </div>
   );
 }
