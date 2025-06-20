@@ -13,18 +13,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    const item = await prisma.item.create({
+    const newItem = await prisma.item.create({
       data: {
         name,
         quantity: parseInt(quantity),
-        location,
+        location, 
         expiresAt: expiresAt ? new Date(expiresAt) : null,
       },
     });
-
-    res.status(200).json(item);
+    res.status(200).json(newItem);
   } catch (error) {
-    console.error('Add item error:', error);
+    console.error(error);
     res.status(500).json({ error: 'Failed to add item' });
   }
 }
