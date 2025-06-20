@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import BottomNav from '../components/BottomNav';
 import ItemListPage from '../components/ItemListPage';
 import AddItemForm from '../components/AddItemForm';
+import { deleteItemWithConfirm } from '../utils/deleteItemWithConfirm';
 
 export default function FridgePage() {
   const [items, setItems] = useState([]);
@@ -12,18 +13,8 @@ export default function FridgePage() {
       .then(data => setItems(data));
   }, []);
 
-  const handleDelete = async (id) => {
-    const res = await fetch('/api/delete-item', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    });
-
-    if (res.ok) {
-      setItems(items.filter(item => item.id !== id));
-    } else {
-      alert('Failed to delete item');
-    }
+  const handleDelete = (id) => {
+    deleteItemWithConfirm(id, setItems);
   };
 
   return (
