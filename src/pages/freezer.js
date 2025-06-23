@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import BottomNav from '../components/BottomNav';
 import AddItemForm from '../components/AddItemForm';
-import { deleteItemWithConfirm } from '../utils/deleteItemWithConfirm';
+import EditableItemList from '../components/EditableItemList';
 
 export default function FreezerPage() {
   const [items, setItems] = useState([]);
@@ -12,23 +12,16 @@ export default function FreezerPage() {
       .then(data => setItems(data));
   }, []);
 
-  const handleDelete = (id) => {
-    deleteItemWithConfirm(id, setItems);
-  };
-
   return (
     <>
       <div className="container">
         <h1>Freezer Inventory</h1>
         <AddItemForm location="freezer" onItemAdded={(item) => setItems(prev => [...prev, item])} />
-        <ul className="item-list">
-          {items.map(item => (
-            <li key={item.id} className="item-card">
-              <span>{item.name} (Qty: {item.quantity})</span>
-              <button onClick={() => handleDelete(item.id)}>❌</button>
-            </li>
-          ))}
-        </ul>
+        {items.length === 0 ? (
+          <p>No items found.</p>
+        ) : (
+          <EditableItemList items={items} setItems={setItems} />
+        )}
       </div>
       <BottomNav />
     </>

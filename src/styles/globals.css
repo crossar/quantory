@@ -109,6 +109,12 @@ a {
   transition: box-shadow 0.2s ease;
 }
 
+.item-card form input {
+  margin-right: 0.5rem;
+  padding: 0.3rem;
+}
+
+
 .item-card:hover {
   background: #eaeaea;
   transform: translateY(-1px);

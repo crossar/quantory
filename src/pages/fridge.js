@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import BottomNav from '../components/BottomNav';
-import ItemListPage from '../components/ItemListPage';
 import AddItemForm from '../components/AddItemForm';
-import { deleteItemWithConfirm } from '../utils/deleteItemWithConfirm';
+import EditableItemList from '../components/EditableItemList';
 
 export default function FridgePage() {
   const [items, setItems] = useState([]);
@@ -13,10 +12,6 @@ export default function FridgePage() {
       .then(data => setItems(data));
   }, []);
 
-  const handleDelete = (id) => {
-    deleteItemWithConfirm(id, setItems);
-  };
-
   return (
     <>
       <div className="container">
@@ -25,14 +20,7 @@ export default function FridgePage() {
         {items.length === 0 ? (
           <p>No items found.</p>
         ) : (
-          <ul className="item-list">
-            {items.map(item => (
-              <li key={item.id} className="item-card">
-                <span>{item.name} (Qty: {item.quantity})</span>
-                <button onClick={() => handleDelete(item.id)}>❌</button>
-              </li>
-            ))}
-          </ul>
+          <EditableItemList items={items} setItems={setItems} />
         )}
       </div>
       <BottomNav />
