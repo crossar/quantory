@@ -29,5 +29,19 @@ export default async function handler(req, res) {
     return res.status(204).end();
   }
 
+  if (req.method === 'PUT') {
+    const { id, name } = req.body;
+    if (!id || !name || name.trim() === '') {
+      return res.status(400).json({ error: 'ID and name are required' });
+    }
+
+    const updatedItem = await prisma.toBuyItem.update({
+      where: { id },
+      data: { name: name.trim() },
+    });
+
+    return res.status(200).json(updatedItem);
+  }
+
   return res.status(405).json({ error: 'Method not allowed' });
 }

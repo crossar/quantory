@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import EditableToBuyList from './EditableToBuyList';
 
 export default function ToBuyPage() {
   const [items, setItems] = useState([]);
@@ -29,23 +30,6 @@ export default function ToBuyPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm('Remove this from your list?');
-    if (!confirmDelete) return;
-
-    const res = await fetch('/api/to-buy', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    });
-
-    if (res.ok) {
-      setItems(items.filter(item => item.id !== id));
-    } else {
-      alert('Failed to delete item');
-    }
-  };
-
   return (
     <div className="container">
       <h1>To Buy List</h1>
@@ -63,14 +47,7 @@ export default function ToBuyPage() {
       {items.length === 0 ? (
         <p>No items in your list.</p>
       ) : (
-        <ul className="item-list">
-          {items.map(item => (
-            <li key={item.id} className="item-card">
-              <span>{item.name}</span>
-              <button onClick={() => handleDelete(item.id)}>❌</button>
-            </li>
-          ))}
-        </ul>
+        <EditableToBuyList items={items} setItems={setItems} />
       )}
     </div>
   );
