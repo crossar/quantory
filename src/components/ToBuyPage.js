@@ -5,6 +5,8 @@ export default function ToBuyPage() {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState('');
   const [location, setLocation] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  const [expiresAt, setExpiresAt] = useState('');
 
   useEffect(() => {
     fetch('/api/to-buy')
@@ -14,12 +16,17 @@ export default function ToBuyPage() {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    if (!newItem.trim()) return;
+    if (!newItem.trim() || !location) return;
 
     const res = await fetch('/api/to-buy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newItem, location }),
+      body: JSON.stringify({
+        name: newItem,
+        location,
+        quantity,
+        expiresAt: expiresAt || null,
+      }),
     });
 
     if (res.ok) {
@@ -27,6 +34,8 @@ export default function ToBuyPage() {
       setItems(prev => [...prev, item]);
       setNewItem('');
       setLocation('');
+      setQuantity(1);
+      setExpiresAt('');
     } else {
       alert('Failed to add item');
     }
@@ -38,22 +47,41 @@ export default function ToBuyPage() {
 
       <form
         onSubmit={handleAdd}
-        style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}
+        style={{
+          marginBottom: '1rem',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '0.5rem',
+          alignItems: 'center',
+        }}
       >
         <input
           type="text"
-          placeholder="Add item..."
+          placeholder="Item name"
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
         />
         <select value={location} onChange={(e) => setLocation(e.target.value)}>
-          <option value="">Select location</option>
+          <option value="">Location</option>
           <option value="fridge">Fridge</option>
           <option value="freezer">Freezer</option>
           <option value="pantry">Pantry</option>
           <option value="storage-room">Storage Room</option>
           <option value="medicine">Medicine</option>
         </select>
+        <input
+          type="number"
+          min="1"
+          placeholder="Qty"
+          value={quantity}
+          onChange={(e) => setQuantity(Number(e.target.value))}
+          style={{ width: '70px' }}
+        />
+        <input
+          type="date"
+          value={expiresAt}
+          onChange={(e) => setExpiresAt(e.target.value)}
+        />
         <button type="submit">➕</button>
       </form>
 

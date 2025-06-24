@@ -8,19 +8,25 @@ export default async function handler(req, res) {
     return res.status(200).json(items);
   }
 
-  if (req.method === 'POST') {
-    const { name, location } = req.body;
+if (req.method === 'POST') {
+  const { name, location, quantity, expiresAt } = req.body;
 
-const newItem = await prisma.toBuyItem.create({
-  data: {
-    name: name.trim(),
-    location: location || 'unspecified',
-  },
-});
-
-
-    return res.status(201).json(newItem);
+  if (!name || name.trim() === '') {
+    return res.status(400).json({ error: 'Item name is required' });
   }
+
+  const newItem = await prisma.toBuyItem.create({
+    data: {
+      name: name.trim(),
+      location: location || 'unspecified',
+      quantity: quantity || 1,
+      expiresAt: expiresAt ? new Date(expiresAt) : null,
+    },
+  });
+
+  return res.status(201).json(newItem);
+}
+
 
   if (req.method === 'DELETE') {
     const { id } = req.body;

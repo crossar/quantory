@@ -25,10 +25,9 @@ enum Location {
 }
 
 model ToBuyItem {
-  id       Int    @id @default(autoincrement())
-  name     String
-  location String @default("unspecified")
+  id        Int      @id @default(autoincrement())
+  name      String
+  location  String   @default("unspecified")
+  quantity  Int      @default(1)
+  expiresAt DateTime?
 }
-
-
-
