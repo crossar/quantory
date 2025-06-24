@@ -122,7 +122,11 @@ a {
 
 .item-card span {
   font-weight: 500;
+  line-height: 1.4;
+  max-width: 70%;
+  word-wrap: break-word;
 }
+
 
 .item-card button {
   margin-left: 1rem;

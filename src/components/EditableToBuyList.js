@@ -73,7 +73,9 @@ export default function EditableToBuyList({ items, setItems }) {
             </>
           ) : (
             <>
-              <span>{item.name}</span>
+              <span>{item.name} (Qty: {item.quantity || 1})</span>
+
+
               <button onClick={() => handleEdit(item.id, item.name)}>✏️</button>
               <button onClick={() => handleMoveToInventory(item)}>✅</button>
               <button onClick={() => handleDelete(item.id)}>❌</button>

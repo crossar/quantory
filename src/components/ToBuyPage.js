@@ -1,26 +1,26 @@
-import { useEffect, useState } from 'react';
-import EditableToBuyList from './EditableToBuyList';
+import { useEffect, useState } from "react";
+import EditableToBuyList from "./EditableToBuyList";
 
 export default function ToBuyPage() {
   const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState('');
-  const [location, setLocation] = useState('');
+  const [newItem, setNewItem] = useState("");
+  const [location, setLocation] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [expiresAt, setExpiresAt] = useState('');
+  const [expiresAt, setExpiresAt] = useState("");
 
   useEffect(() => {
-    fetch('/api/to-buy')
-      .then(res => res.json())
-      .then(data => setItems(data));
+    fetch("/api/to-buy")
+      .then((res) => res.json())
+      .then((data) => setItems(data));
   }, []);
 
   const handleAdd = async (e) => {
     e.preventDefault();
     if (!newItem.trim() || !location) return;
 
-    const res = await fetch('/api/to-buy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/to-buy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: newItem,
         location,
@@ -31,28 +31,31 @@ export default function ToBuyPage() {
 
     if (res.ok) {
       const item = await res.json();
-      setItems(prev => [...prev, item]);
-      setNewItem('');
-      setLocation('');
+      setItems((prev) => [...prev, item]);
+      setNewItem("");
+      setLocation("");
       setQuantity(1);
-      setExpiresAt('');
+      setExpiresAt("");
     } else {
-      alert('Failed to add item');
+      alert("Failed to add item");
     }
   };
 
   return (
     <div className="container">
       <h1>To Buy List</h1>
+      <p style={{ marginBottom: "1rem", fontSize: "0.9rem", color: "#666" }}>
+        Add items you plan to buy. You can set expiration dates after purchase.
+      </p>
 
       <form
         onSubmit={handleAdd}
         style={{
-          marginBottom: '1rem',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '0.5rem',
-          alignItems: 'center',
+          marginBottom: "1rem",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "0.5rem",
+          alignItems: "center",
         }}
       >
         <input
@@ -75,7 +78,7 @@ export default function ToBuyPage() {
           placeholder="Qty"
           value={quantity}
           onChange={(e) => setQuantity(Number(e.target.value))}
-          style={{ width: '70px' }}
+          style={{ width: "70px" }}
         />
         <input
           type="date"
