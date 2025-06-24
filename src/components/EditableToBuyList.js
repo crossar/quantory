@@ -53,7 +53,8 @@ export default function EditableToBuyList({ items, setItems }) {
             </>
           ) : (
             <>
-              <span>{item.name}</span>
+             <span>{item.name} <small>({item.location})</small></span>
+
               <div>
                 <button onClick={() => handleEdit(item)}>✏️</button>
                 <button onClick={() => handleDelete(item.id)}>❌</button>

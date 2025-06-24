@@ -9,14 +9,15 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { name } = req.body;
-    if (!name || name.trim() === '') {
-      return res.status(400).json({ error: 'Item name is required' });
-    }
+    const { name, location } = req.body;
 
-    const newItem = await prisma.toBuyItem.create({
-      data: { name: name.trim() },
-    });
+const newItem = await prisma.toBuyItem.create({
+  data: {
+    name: name.trim(),
+    location: location || 'unspecified',
+  },
+});
+
 
     return res.status(201).json(newItem);
   }
