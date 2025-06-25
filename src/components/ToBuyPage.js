@@ -30,31 +30,39 @@ useEffect(() => {
 }, []);
 
   const handleAdd = async (e) => {
-    e.preventDefault();
-    if (!newItem.trim() || !location) return;
+  e.preventDefault();
+  if (!newItem.trim() || !location) return;
 
-    const res = await fetch("/api/to-buy", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: newItem,
-        location,
-        quantity,
-        expiresAt: expiresAt || null,
-      }),
-    });
+  const user = JSON.parse(localStorage.getItem('user')); // 👈 get user from localStorage
+  if (!user) {
+    alert("You must be logged in");
+    return;
+  }
 
-    if (res.ok) {
-      const item = await res.json();
-      setItems((prev) => [...prev, item]);
-      setNewItem("");
-      setLocation("");
-      setQuantity(1);
-      setExpiresAt("");
-    } else {
-      alert("Failed to add item");
-    }
-  };
+  const res = await fetch("/api/to-buy", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: newItem,
+      location,
+      quantity,
+      expiresAt: expiresAt || null,
+      userId: user.id, // 👈 pass the userId in the request
+    }),
+  });
+
+  if (res.ok) {
+    const item = await res.json();
+    setItems((prev) => [...prev, item]);
+    setNewItem("");
+    setLocation("");
+    setQuantity(1);
+    setExpiresAt("");
+  } else {
+    alert("Failed to add item");
+  }
+};
+
 
   return (
     <div className="container">

@@ -8,34 +8,34 @@ datasource db {
 }
 
 model User {
-  id        Int         @id @default(autoincrement())
-  username  String      @unique
-  password  String
-  firstName String
-  lastName  String
-  items     Item[]
-  toBuy     ToBuyItem[]
+  id         Int         @id @default(autoincrement())
+  username   String      @unique
+  password   String
+  firstName  String?
+  lastName   String?
+  toBuyItems ToBuyItem[]
+  Item       Item[]
 }
 
 model Item {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
   location  Location
   quantity  Int
   expiresAt DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
 }
 
 model ToBuyItem {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  location  String   @default("unspecified")
-  quantity  Int      @default(1)
+  location  String
+  quantity  Int       @default(1)
   expiresAt DateTime?
   userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
 }
 
 enum Location {

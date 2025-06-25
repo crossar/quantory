@@ -3,12 +3,7 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-    const { name, quantity, location, expiresAt } = req.body;
-
-    // ✅ Get user from headers
-    const userHeader = req.headers["user"];
-    const user = userHeader ? JSON.parse(userHeader) : null;
-    const userId = user?.id;
+    const { name, quantity, location, expiresAt, userId } = req.body;
 
     if (!userId) {
       return res.status(401).json({ error: "User not authenticated" });
@@ -21,7 +16,7 @@ export default async function handler(req, res) {
           quantity,
           location,
           expiresAt: expiresAt ? new Date(expiresAt) : null,
-          userId, // ✅ save userId
+          userId,
         },
       });
       res.status(200).json(newItem);
