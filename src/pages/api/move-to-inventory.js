@@ -39,6 +39,7 @@ export default async function handler(req, res) {
         location: mapToLocationEnum(item.location),
         quantity: item.quantity || 1,
         expiresAt: item.expiresAt ? new Date(item.expiresAt) : null,
+        userId: item.userId,
       },
     });
 
