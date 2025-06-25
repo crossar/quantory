@@ -7,6 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        Int         @id @default(autoincrement())
+  username  String      @unique
+  password  String
+  firstName String
+  lastName  String
+  items     Item[]
+  toBuy     ToBuyItem[]
+}
+
 model Item {
   id        Int      @id @default(autoincrement())
   name      String
@@ -14,14 +24,8 @@ model Item {
   quantity  Int
   expiresAt DateTime?
   createdAt DateTime @default(now())
-}
-
-enum Location {
-  FRIDGE
-  FREEZER
-  PANTRY
-  STORAGE
-  MEDICINE
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model ToBuyItem {
@@ -30,4 +34,14 @@ model ToBuyItem {
   location  String   @default("unspecified")
   quantity  Int      @default(1)
   expiresAt DateTime?
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+enum Location {
+  FRIDGE
+  FREEZER
+  PANTRY
+  STORAGE
+  MEDICINE
 }

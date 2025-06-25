@@ -8,11 +8,26 @@ export default function ToBuyPage() {
   const [quantity, setQuantity] = useState(1);
   const [expiresAt, setExpiresAt] = useState("");
 
-  useEffect(() => {
-    fetch("/api/to-buy")
-      .then((res) => res.json())
-      .then((data) => setItems(data));
-  }, []);
+useEffect(() => {
+  const fetchItems = async () => {
+    try {
+      const res = await fetch("/api/to-buy");
+      const data = await res.json();
+
+      if (Array.isArray(data)) {
+        setItems(data);
+      } else {
+        console.error("Expected array, got:", data);
+        setItems([]); // fallback
+      }
+    } catch (err) {
+      console.error("Failed to fetch to-buy items:", err);
+      setItems([]); // fallback
+    }
+  };
+
+  fetchItems();
+}, []);
 
   const handleAdd = async (e) => {
     e.preventDefault();
