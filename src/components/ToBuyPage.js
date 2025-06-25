@@ -8,61 +8,80 @@ export default function ToBuyPage() {
   const [quantity, setQuantity] = useState(1);
   const [expiresAt, setExpiresAt] = useState("");
 
-useEffect(() => {
-  const fetchItems = async () => {
-    try {
-      const res = await fetch("/api/to-buy");
-      const data = await res.json();
+  useEffect(() => {
+    const fetchItems = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      console.log("user from localStorage:", user); // for testing
 
-      if (Array.isArray(data)) {
-        setItems(data);
-      } else {
-        console.error("Expected array, got:", data);
-        setItems([]); // fallback
+      if (!user) {
+        alert("You must be logged in");
+        return;
       }
-    } catch (err) {
-      console.error("Failed to fetch to-buy items:", err);
-      setItems([]); // fallback
+
+      console.log("Sending this to backend:", {
+        name: newItem,
+        location,
+        quantity,
+        expiresAt: expiresAt || null,
+        userId: user.id,
+      });
+      try {
+        const res = await fetch("/api/to-buy", {
+          headers: {
+            "Content-Type": "application/json",
+            user: JSON.stringify(user), // 👈 send user info
+          },
+        });
+
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setItems(data);
+        } else {
+          console.error("Expected array, got:", data);
+          setItems([]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch to-buy items:", err);
+      }
+    };
+
+    fetchItems();
+  }, []);
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    if (!newItem.trim() || !location) return;
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    console.log("user from localStorage:", user); // 👈 this will show up in Console
+
+    if (!user) {
+      alert("You must be logged in");
+      return;
+    }
+
+    const res = await fetch("/api/to-buy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: newItem,
+        location,
+        quantity,
+        expiresAt: expiresAt || null,
+        userId: user.id,
+      }),
+    });
+
+    if (res.ok) {
+      const item = await res.json();
+      setItems((prev) => [...prev, item]);
+      setNewItem("");
+      setLocation("");
+      setQuantity(1);
+      setExpiresAt("");
+    } else {
+      alert("Failed to add item");
     }
   };
-
-  fetchItems();
-}, []);
-
-  const handleAdd = async (e) => {
-  e.preventDefault();
-  if (!newItem.trim() || !location) return;
-
-  const user = JSON.parse(localStorage.getItem('user')); // 👈 get user from localStorage
-  if (!user) {
-    alert("You must be logged in");
-    return;
-  }
-
-  const res = await fetch("/api/to-buy", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name: newItem,
-      location,
-      quantity,
-      expiresAt: expiresAt || null,
-      userId: user.id, // 👈 pass the userId in the request
-    }),
-  });
-
-  if (res.ok) {
-    const item = await res.json();
-    setItems((prev) => [...prev, item]);
-    setNewItem("");
-    setLocation("");
-    setQuantity(1);
-    setExpiresAt("");
-  } else {
-    alert("Failed to add item");
-  }
-};
-
 
   return (
     <div className="container">
