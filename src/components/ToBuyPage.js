@@ -26,12 +26,8 @@ export default function ToBuyPage() {
         userId: user.id,
       });
       try {
-        const res = await fetch("/api/to-buy", {
-          headers: {
-            "Content-Type": "application/json",
-            user: JSON.stringify(user), // 👈 send user info
-          },
-        });
+        const res = await fetch(`/api/to-buy?userId=${user.id}`);
+
 
         const data = await res.json();
         if (Array.isArray(data)) {
@@ -54,10 +50,11 @@ export default function ToBuyPage() {
     const user = JSON.parse(localStorage.getItem("user"));
     console.log("user from localStorage:", user); // 👈 this will show up in Console
 
-    if (!user) {
-      alert("You must be logged in");
-      return;
-    }
+   if (!user) {
+  window.location.href = "/login"; // redirect to login page
+  return;
+}
+
 
     const res = await fetch("/api/to-buy", {
       method: "POST",
