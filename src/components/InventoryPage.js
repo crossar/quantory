@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import AddItemForm from './AddItemForm';
 import EditableItemList from './EditableItemList';
+import AddItemForm from './AddItemForm';
 import BottomNav from './BottomNav';
 
 export default function InventoryPage({ title, location }) {
