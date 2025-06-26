@@ -1,10 +1,9 @@
-// pages/login.js
-import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function LoginPage() {
-  const [form, setForm] = useState({ username: '', password: '' });
   const router = useRouter();
+  const [form, setForm] = useState({ username: "", password: "" });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -13,26 +12,41 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
 
+    const data = await res.json();
+
     if (res.ok) {
-      const data = await res.json();
-      localStorage.setItem('user', JSON.stringify(data.user));
-      router.push('/');
+      // THIS IS THE IMPORTANT LINE
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Optional: Go to homepage or profile
+      router.push("/");
     } else {
-      alert('Invalid credentials');
+      alert(data.error || "Login failed");
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <h1>Login</h1>
-      <input name="username" placeholder="Username" onChange={handleChange} required />
-      <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
+      <h2>Login</h2>
+      <input
+        name="username"
+        value={form.username}
+        onChange={handleChange}
+        placeholder="Username"
+      />
+      <input
+        name="password"
+        type="password"
+        value={form.password}
+        onChange={handleChange}
+        placeholder="Password"
+      />
       <button type="submit">Login</button>
     </form>
   );
