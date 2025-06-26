@@ -8,14 +8,22 @@ export default function EditableToBuyList({ items, setItems }) {
     const confirmDelete = window.confirm("Remove this from your list?");
     if (!confirmDelete) return;
 
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.id) {
+      alert("You must be logged in to delete items.");
+      return;
+    }
+
     const res = await fetch("/api/to-buy", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ id, userId: user.id }), // ✅ include userId
     });
 
     if (res.ok) {
       setItems(items.filter((item) => item.id !== id));
+    } else {
+      alert("Failed to delete item");
     }
   };
 
@@ -73,8 +81,9 @@ export default function EditableToBuyList({ items, setItems }) {
             </>
           ) : (
             <>
-              <span>{item.name} (Qty: {item.quantity || 1})</span>
-
+              <span>
+                {item.name} (Qty: {item.quantity || 1})
+              </span>
 
               <button onClick={() => handleEdit(item.id, item.name)}>✏️</button>
               <button onClick={() => handleMoveToInventory(item)}>✅</button>
