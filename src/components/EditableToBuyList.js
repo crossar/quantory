@@ -50,11 +50,18 @@ export default function EditableToBuyList({ items, setItems }) {
     const confirmMove = window.confirm(`Move "${item.name}" to inventory?`);
     if (!confirmMove) return;
 
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.id) {
+      alert("You must be logged in to move items.");
+      return;
+    }
+
     const res = await fetch("/api/move-to-inventory", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id: item.id,
+        userId: user.id, // ✅ send user ID
         name: item.name,
         location: item.location,
       }),
