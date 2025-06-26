@@ -2,9 +2,11 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
-  const { location, expiring } = req.query;
+  const { location, expiring, userId } = req.query;
 
-  let where = {};
+  if (!userId) return res.status(401).json({ error: 'User ID required' });
+
+  let where = { userId: parseInt(userId) };
 
   if (location) {
     where.location = location.toUpperCase();

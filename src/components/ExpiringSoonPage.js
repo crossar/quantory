@@ -4,7 +4,10 @@ export default function ExpiringSoonPage() {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    fetch('/api/items?expiring=true')
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.id) return;
+
+    fetch(`/api/items?expiring=true&userId=${user.id}`)
       .then(res => res.json())
       .then(data => setItems(data));
   }, []);
