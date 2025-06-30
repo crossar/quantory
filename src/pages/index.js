@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import BottomNav from '../components/BottomNav';
 
 export default function Home() {
   const data = [
@@ -20,7 +19,6 @@ export default function Home() {
           </Link>
         ))}
       </div>
-      <BottomNav />
     </div>
   );
 }

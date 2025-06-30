@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { useUser } from "../components/UserContext";
 
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "" });
+  const { setUser } = useUser();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,10 +23,8 @@ export default function LoginPage() {
     const data = await res.json();
 
     if (res.ok) {
-      // THIS IS THE IMPORTANT LINE
       localStorage.setItem("user", JSON.stringify(data.user));
-
-      // Optional: Go to homepage or profile
+      setUser(data.user); // ✅ this updates everywhere
       router.push("/");
     } else {
       alert(data.error || "Login failed");
