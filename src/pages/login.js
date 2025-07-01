@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useUser } from "../components/UserContext";
 
@@ -48,6 +49,9 @@ export default function LoginPage() {
         placeholder="Password"
       />
       <button type="submit">Login</button>
+      <p style={{ marginTop: "10px" }}>
+        Don’t have an account? <Link href="/signup">Sign up</Link>
+      </p>
     </form>
   );
 }
