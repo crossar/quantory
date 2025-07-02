@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       },
     });
   } catch (error) {
-    console.error('Signup error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+  console.error('Signup error:', error.message, error.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
+}
 }
