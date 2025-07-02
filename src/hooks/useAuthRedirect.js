@@ -9,5 +9,5 @@ export default function useAuthRedirect() {
     if (!user) {
       router.replace("/login"); // redirect to login if not found
     }
-  }, []);
+ }, [router]);
 }

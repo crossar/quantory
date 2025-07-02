@@ -12,7 +12,7 @@ export default function ProfilePage() {
     } else {
       router.push("/login"); // redirect if not logged in
     }
-  }, []);
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
