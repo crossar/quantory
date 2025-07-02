@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "seed": "node prisma/seed.js",
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
+  "seed": "node prisma/seed.js",
+  "dev": "next dev",
+  "build": "npx prisma generate && next build",
+  "start": "next start",
+  "lint": "next lint",
+  "postinstall": "prisma generate"
+},
   "dependencies": {
     "@prisma/client": "^6.10.1",
     "bcrypt": "^6.0.0",
