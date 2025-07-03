@@ -3,6 +3,9 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
+
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
