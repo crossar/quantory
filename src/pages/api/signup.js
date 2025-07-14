@@ -1,21 +1,18 @@
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-console.log('DATABASE_URL:', process.env.DATABASE_URL);
-
-
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
     const { username, password, firstName, lastName } = req.body;
 
     if (!username || !password || !firstName || !lastName) {
-      return res.status(400).json({ error: 'Missing fields' });
+      return res.status(400).json({ error: "Missing fields" });
     }
 
     const existingUser = await prisma.user.findUnique({
@@ -23,7 +20,7 @@ export default async function handler(req, res) {
     });
 
     if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
+      return res.status(400).json({ error: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,7 +31,7 @@ export default async function handler(req, res) {
         password: hashedPassword,
         firstName,
         lastName,
-        uuid: user.id,
+        // uuid: crypto.randomUUID(), // optional
       },
     });
 
@@ -47,7 +44,7 @@ export default async function handler(req, res) {
       },
     });
   } catch (error) {
-  console.error('Signup error:', error);
-  res.status(500).json({ error: 'Internal Server Error' });
-}
+    console.error("Signup error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 }
