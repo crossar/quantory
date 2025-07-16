@@ -10,7 +10,6 @@ datasource db {
 
 model User {
   id         Int         @id @default(autoincrement())
-   supabaseId   String      @unique
   username   String      @unique
   password   String
   firstName  String
