@@ -1,13 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient({
-  __internal: {
-    engine: {
-      env: {
-        PRISMA_DISABLE_PREPARED_STATEMENTS: "true",
-      },
-    },
-  },
-});
+const globalForPrisma = globalThis;
+
+const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    log: ["query"],
+  });
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 export default prisma;
