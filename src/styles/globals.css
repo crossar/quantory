@@ -89,7 +89,6 @@ a {
   color: inherit;
 }
 
-
 /* === Item Cards (used in fridge, pantry, etc.) === */
 .item-list {
   display: flex;
@@ -98,10 +97,10 @@ a {
 }
 
 .item-card {
-  background: #f6f6f6;
+  background: #d8e9d9;
   padding: 1rem;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -109,11 +108,15 @@ a {
   transition: box-shadow 0.2s ease;
 }
 
+.item-card.expiring {
+  border-left: 5px solid #d9534f;
+  background: #fadac6;
+}
+
 .item-card form input {
   margin-right: 0.5rem;
   padding: 0.3rem;
 }
-
 
 .item-card:hover {
   background: #eaeaea;
@@ -127,11 +130,9 @@ a {
   word-wrap: break-word;
 }
 
-
 .item-card button {
   margin-left: 1rem;
 }
-
 
 input {
   background: #fff;
