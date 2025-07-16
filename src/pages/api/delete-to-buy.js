@@ -1,12 +1,11 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export default async function handler(req, res) {
-  if (req.method !== 'DELETE') return res.status(405).end();
+  if (req.method !== "DELETE") return res.status(405).end();
 
   const { id } = req.body;
-  if (!id) return res.status(400).json({ error: 'Missing id' });
+  if (!id) return res.status(400).json({ error: "Missing id" });
 
   await prisma.toBuyItem.delete({ where: { id: parseInt(id) } });
-  res.status(200).json({ message: 'Deleted' });
+  res.status(200).json({ message: "Deleted" });
 }

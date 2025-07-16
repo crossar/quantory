@@ -1,11 +1,10 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== "POST") return res.status(405).end();
 
   const { name } = req.body;
-  if (!name) return res.status(400).json({ error: 'Missing name' });
+  if (!name) return res.status(400).json({ error: "Missing name" });
 
   const item = await prisma.toBuyItem.create({
     data: { name },

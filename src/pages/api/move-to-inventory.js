@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 function mapToLocationEnum(locationStr) {
   const map = {
@@ -52,7 +50,6 @@ export default async function handler(req, res) {
     await prisma.toBuyItem.delete({ where: { id: parseInt(id) } });
 
     return res.status(200).json({ message: "Moved to inventory" });
-
   } catch (error) {
     console.error("Move failed:", error);
     return res.status(500).json({ error: "Failed to move item" });

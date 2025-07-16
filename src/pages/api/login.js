@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
   console.log("Using DATABASE_URL:", process.env.DATABASE_URL);
