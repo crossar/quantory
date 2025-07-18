@@ -3,6 +3,14 @@ import EditableItemList from "./EditableItemList";
 import AddItemForm from "./AddItemForm";
 import BottomNav from "./BottomNav";
 
+function sortByExpiry(items) {
+  return [...items].sort((a, b) => {
+    const aDate = a.expiresAt ? new Date(a.expiresAt) : Infinity;
+    const bDate = b.expiresAt ? new Date(b.expiresAt) : Infinity;
+    return aDate - bDate;
+  });
+}
+
 export default function InventoryPage({ title, location }) {
   const [items, setItems] = useState([]);
 
@@ -12,7 +20,14 @@ export default function InventoryPage({ title, location }) {
 
     fetch(`/api/items?location=${location}&userId=${user.id}`)
       .then((res) => res.json())
-      .then((data) => setItems(data));
+      .then((data) => {
+        const sorted = [...data].sort((a, b) => {
+          const aDate = a.expiresAt ? new Date(a.expiresAt) : Infinity;
+          const bDate = b.expiresAt ? new Date(b.expiresAt) : Infinity;
+          return aDate - bDate;
+        });
+        setItems(sorted);
+      });
   }, [location]);
 
   return (
@@ -21,8 +36,11 @@ export default function InventoryPage({ title, location }) {
         <h1>{title}</h1>
         <AddItemForm
           location={location}
-          onItemAdded={(item) => setItems((prev) => [...prev, item])}
+          onItemAdded={(newItem) =>
+            setItems((prev) => sortByExpiry([...prev, newItem]))
+          }
         />
+
         {items.length === 0 ? (
           <p>No items found.</p>
         ) : (
