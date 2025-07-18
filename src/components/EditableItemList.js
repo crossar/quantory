@@ -6,6 +6,21 @@ function formatDateLocal(dateStr) {
   return new Date(year, month - 1, day).toLocaleDateString();
 }
 
+function isExpiringSoonLocal(dateStr) {
+  if (!dateStr) return false;
+
+  const [year, month, day] = dateStr.split("T")[0].split("-");
+  const expires = new Date(year, month - 1, day);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const diffInMs = expires - today;
+  const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+  return diffInDays >= 0 && diffInDays <= 3;
+}
+
 export default function EditableItemList({ items, setItems }) {
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({
@@ -66,9 +81,7 @@ export default function EditableItemList({ items, setItems }) {
   return (
     <div className="item-list">
       {items.map((item) => {
-        const isExpiringSoon =
-          item.expiresAt &&
-          (new Date(item.expiresAt) - new Date()) / (1000 * 60 * 60 * 24) <= 3;
+        const isExpiringSoon = isExpiringSoonLocal(item.expiresAt);
 
         return (
           <div
