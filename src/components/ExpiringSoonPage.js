@@ -13,7 +13,7 @@ export default function ExpiringSoonPage() {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user || !user.id) return;
 
-    fetch(`/api/items?expiring=true&userId=${user.id}`)
+    fetch(`/api/items?userId=${user.id}`)
       .then((res) => res.json())
       .then((data) => setItems(data));
   }, []);
