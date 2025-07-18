@@ -1,5 +1,11 @@
 import { useState } from "react";
 
+function formatDateLocal(dateStr) {
+  if (!dateStr) return "—";
+  const [year, month, day] = dateStr.split("T")[0].split("-");
+  return new Date(year, month - 1, day).toLocaleDateString();
+}
+
 export default function EditableItemList({ items, setItems }) {
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({
@@ -124,7 +130,7 @@ export default function EditableItemList({ items, setItems }) {
                   <p style={{ fontSize: "0.85rem", marginTop: "4px" }}>
                     Qty: {item.quantity} | Expires:{" "}
                     {item.expiresAt
-                      ? `${new Date(item.expiresAt).toLocaleDateString()} ${
+                      ? `${formatDateLocal(item.expiresAt)} ${
                           isExpiringSoon ? "⚠️" : ""
                         }`
                       : "—"}
