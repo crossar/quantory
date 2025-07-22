@@ -33,6 +33,7 @@ export default function EditableItemList({ items, setItems }) {
     expiresAt: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
+  const [showExpired, setShowExpired] = useState(false);
 
   const startEdit = (item) => {
     setEditingId(item.id);
@@ -216,12 +217,24 @@ export default function EditableItemList({ items, setItems }) {
             fontSize: "1rem",
           }}
         />
+
+        <div style={{ marginTop: "0.5rem" }}>
+          <label style={{ fontSize: "0.9rem" }}>
+            <input
+              type="checkbox"
+              checked={showExpired}
+              onChange={() => setShowExpired(!showExpired)}
+              style={{ marginRight: "0.5rem" }}
+            />
+            Show Expired Items
+          </label>
+        </div>
       </div>
 
-      {expiredItems.length > 0 && (
+      {showExpired && expiredItems.length > 0 && (
         <>
           <h3 style={{ color: "red", marginBottom: "0.5rem" }}>Expired</h3>
-          {expiredItems.map(renderItem)}
+          {expiredItems.map((item) => renderItem(item))}
         </>
       )}
 
