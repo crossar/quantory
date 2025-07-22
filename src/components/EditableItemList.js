@@ -261,26 +261,47 @@ export default function EditableItemList({ items, setItems }) {
       </div>
 
       {showExpired && expiredItems.length > 0 && (
-        <>
+        <div
+          style={{
+            border: "2px solid red",
+            padding: "1rem",
+            borderRadius: "8px",
+            marginBottom: "1rem",
+          }}
+        >
           <h3 style={{ color: "red", marginBottom: "0.5rem" }}>Expired</h3>
           {expiredItems.map((item) => renderItem(item))}
-        </>
+        </div>
       )}
 
       {showExpiringSoon && expiringSoonItems.length > 0 && (
-        <>
-          <h3 style={{ color: "orange", margin: "1rem 0 0.5rem" }}>
+        <div
+          style={{
+            border: "2px solid orange",
+            padding: "1rem",
+            borderRadius: "8px",
+            marginBottom: "1rem",
+          }}
+        >
+          <h3 style={{ color: "orange", marginBottom: "0.5rem" }}>
             Expiring Soon
           </h3>
           {expiringSoonItems.map(renderItem)}
-        </>
+        </div>
       )}
 
       {showGood && goodItems.length > 0 && (
-        <>
-          <h3 style={{ color: "green", margin: "1rem 0 0.5rem" }}>Good</h3>
+        <div
+          style={{
+            border: "2px solid green",
+            padding: "1rem",
+            borderRadius: "8px",
+            marginBottom: "1rem",
+          }}
+        >
+          <h3 style={{ color: "green", marginBottom: "0.5rem" }}>Good</h3>
           {goodItems.map(renderItem)}
-        </>
+        </div>
       )}
     </div>
   );
