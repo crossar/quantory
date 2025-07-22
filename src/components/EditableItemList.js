@@ -41,6 +41,8 @@ export default function EditableItemList({ items, setItems }) {
     expiresAt: "",
   });
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const startEdit = (item) => {
     setEditingId(item.id);
     setEditData({
@@ -92,115 +94,141 @@ export default function EditableItemList({ items, setItems }) {
 
   return (
     <div className="item-list">
-      {items.map((item) => {
-        const isExpiringSoon = isExpiringSoonLocal(item.expiresAt);
-        const isExpired = isExpiredLocal(item.expiresAt);
-        const isLowStock = item.quantity <= 1;
-        const locationColors = {
-          fridge: "#00bcd4",
-          freezer: "#3f51b5",
-          pantry: "#4caf50",
-          storage: "#795548",
-        };
+      <div style={{ marginBottom: "1rem" }}>
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "0.5rem",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            fontSize: "1rem",
+          }}
+        />
+      </div>
 
-        const locationColor = locationColors[item.location] || "#aaa";
+      {items
+        .filter((item) =>
+          item.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .map((item) => {
+          const isExpiringSoon = isExpiringSoonLocal(item.expiresAt);
+          const isExpired = isExpiredLocal(item.expiresAt);
+          const isLowStock = item.quantity <= 1;
+          const locationColors = {
+            fridge: "#00bcd4",
+            freezer: "#3f51b5",
+            pantry: "#4caf50",
+            storage: "#795548",
+          };
 
-        return (
-          <div
-            key={item.id}
-            className={`item-card ${isExpiringSoon ? "expiring" : ""}`}
-          >
-            {editingId === item.id ? (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleEdit(item.id);
-                }}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: "100%",
-                }}
-              >
-                <input
-                  type="text"
-                  value={editData.name}
-                  onChange={(e) =>
-                    setEditData({ ...editData, name: e.target.value })
-                  }
-                  required
-                />
-                <input
-                  type="number"
-                  value={editData.quantity}
-                  onChange={(e) =>
-                    setEditData({ ...editData, quantity: e.target.value })
-                  }
-                  required
-                />
-                <input
-                  type="date"
-                  value={editData.expiresAt}
-                  onChange={(e) =>
-                    setEditData({ ...editData, expiresAt: e.target.value })
-                  }
-                />
-                <div
+          const locationColor = locationColors[item.location] || "#aaa";
+
+          return (
+            <div
+              key={item.id}
+              className={`item-card ${isExpiringSoon ? "expiring" : ""}`}
+            >
+              {editingId === item.id ? (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleEdit(item.id);
+                  }}
                   style={{
-                    marginTop: "0.5rem",
                     display: "flex",
-                    gap: "0.5rem",
+                    flexDirection: "column",
+                    width: "100%",
                   }}
                 >
-                  <button type="submit">Save</button>
-                  <button type="button" onClick={cancelEdit}>
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <>
-                <div>
-                  <span>
-                    {item.name} {isLowStock ? "⚠️ Low Stock" : ""}
-                    <span
-                      style={{
-                        marginLeft: "0.5rem",
-                        background: locationColor,
-                        borderRadius: "6px",
-                        padding: "2px 6px",
-                        fontSize: "0.75rem",
-                        color: "white",
-                      }}
-                    >
-                      {item.location}
-                    </span>
-                  </span>
-
-                  <p
+                  <input
+                    type="text"
+                    value={editData.name}
+                    onChange={(e) =>
+                      setEditData({ ...editData, name: e.target.value })
+                    }
+                    required
+                  />
+                  <input
+                    type="number"
+                    value={editData.quantity}
+                    onChange={(e) =>
+                      setEditData({ ...editData, quantity: e.target.value })
+                    }
+                    required
+                  />
+                  <input
+                    type="date"
+                    value={editData.expiresAt}
+                    onChange={(e) =>
+                      setEditData({ ...editData, expiresAt: e.target.value })
+                    }
+                  />
+                  <div
                     style={{
-                      fontSize: "0.85rem",
-                      marginTop: "4px",
-                      color: isExpired ? "red" : "inherit",
+                      marginTop: "0.5rem",
+                      display: "flex",
+                      gap: "0.5rem",
                     }}
                   >
-                    Qty: {item.quantity} | Expires:{" "}
-                    {item.expiresAt
-                      ? `${formatDateLocal(item.expiresAt)} ${
-                          isExpired ? "❌ Expired" : isExpiringSoon ? "⚠️" : ""
-                        }`
-                      : "—"}
-                  </p>
-                </div>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button onClick={() => startEdit(item)}>Edit</button>
-                  <button onClick={() => handleDelete(item.id)}>Delete</button>
-                </div>
-              </>
-            )}
-          </div>
-        );
-      })}
+                    <button type="submit">Save</button>
+                    <button type="button" onClick={cancelEdit}>
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <div>
+                    <span>
+                      {item.name} {isLowStock ? "⚠️ Low Stock" : ""}
+                      <span
+                        style={{
+                          marginLeft: "0.5rem",
+                          background: locationColor,
+                          borderRadius: "6px",
+                          padding: "2px 6px",
+                          fontSize: "0.75rem",
+                          color: "white",
+                        }}
+                      >
+                        {item.location}
+                      </span>
+                    </span>
+
+                    <p
+                      style={{
+                        fontSize: "0.85rem",
+                        marginTop: "4px",
+                        color: isExpired ? "red" : "inherit",
+                      }}
+                    >
+                      Qty: {item.quantity} | Expires:{" "}
+                      {item.expiresAt
+                        ? `${formatDateLocal(item.expiresAt)} ${
+                            isExpired
+                              ? "❌ Expired"
+                              : isExpiringSoon
+                              ? "⚠️"
+                              : ""
+                          }`
+                        : "—"}
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button onClick={() => startEdit(item)}>Edit</button>
+                    <button onClick={() => handleDelete(item.id)}>
+                      Delete
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })}
     </div>
   );
 }
