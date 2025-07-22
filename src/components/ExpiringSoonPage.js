@@ -6,6 +6,19 @@ function formatDateLocal(dateStr) {
   return new Date(year, month - 1, day).toLocaleDateString();
 }
 
+function isExpiringSoonLocal(dateStr) {
+  if (!dateStr) return false;
+
+  const [year, month, day] = dateStr.split("T")[0].split("-");
+  const expires = new Date(year, month - 1, day);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const diffInDays = (expires - today) / (1000 * 60 * 60 * 24);
+  return diffInDays >= 0 && diffInDays <= 3;
+}
+
 export default function ExpiringSoonPage() {
   const [items, setItems] = useState([]);
 
@@ -15,7 +28,13 @@ export default function ExpiringSoonPage() {
 
     fetch(`/api/items?userId=${user.id}`)
       .then((res) => res.json())
-      .then((data) => setItems(data));
+      .then((data) => {
+        const expiringSoon = data
+          .filter((item) => isExpiringSoonLocal(item.expiresAt))
+          .sort((a, b) => new Date(a.expiresAt) - new Date(b.expiresAt));
+
+        setItems(expiringSoon);
+      });
   }, []);
 
   const handleDelete = async (id) => {
