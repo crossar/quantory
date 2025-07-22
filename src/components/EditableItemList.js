@@ -96,6 +96,14 @@ export default function EditableItemList({ items, setItems }) {
         const isExpiringSoon = isExpiringSoonLocal(item.expiresAt);
         const isExpired = isExpiredLocal(item.expiresAt);
         const isLowStock = item.quantity <= 1;
+        const locationColors = {
+          fridge: "#00bcd4",
+          freezer: "#3f51b5",
+          pantry: "#4caf50",
+          storage: "#795548",
+        };
+
+        const locationColor = locationColors[item.location] || "#aaa";
 
         return (
           <div
@@ -153,8 +161,20 @@ export default function EditableItemList({ items, setItems }) {
             ) : (
               <>
                 <div>
-                  <span style={{ color: isLowStock ? "#e67e22" : "inherit" }}>
+                  <span>
                     {item.name} {isLowStock ? "⚠️ Low Stock" : ""}
+                    <span
+                      style={{
+                        marginLeft: "0.5rem",
+                        background: locationColor,
+                        borderRadius: "6px",
+                        padding: "2px 6px",
+                        fontSize: "0.75rem",
+                        color: "white",
+                      }}
+                    >
+                      {item.location}
+                    </span>
                   </span>
 
                   <p
