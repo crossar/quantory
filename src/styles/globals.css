@@ -109,11 +109,6 @@ a {
   transition: box-shadow 0.2s ease;
 }
 
-.item-card.expiring {
-  border-left: 5px solid #d9534f;
-  background: #ededed;
-}
-
 .item-card form input {
   margin-right: 0.5rem;
   padding: 0.3rem;
