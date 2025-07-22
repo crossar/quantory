@@ -34,6 +34,8 @@ export default function EditableItemList({ items, setItems }) {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [showExpired, setShowExpired] = useState(false);
+  const [showExpiringSoon, setShowExpiringSoon] = useState(true);
+  const [showGood, setShowGood] = useState(true);
 
   const startEdit = (item) => {
     setEditingId(item.id);
@@ -218,7 +220,14 @@ export default function EditableItemList({ items, setItems }) {
           }}
         />
 
-        <div style={{ marginTop: "0.5rem" }}>
+        <div
+          style={{
+            marginTop: "0.5rem",
+            display: "flex",
+            gap: "1rem",
+            flexWrap: "wrap",
+          }}
+        >
           <label style={{ fontSize: "0.9rem" }}>
             <input
               type="checkbox"
@@ -227,6 +236,26 @@ export default function EditableItemList({ items, setItems }) {
               style={{ marginRight: "0.5rem" }}
             />
             Show Expired Items
+          </label>
+
+          <label style={{ fontSize: "0.9rem" }}>
+            <input
+              type="checkbox"
+              checked={showExpiringSoon}
+              onChange={() => setShowExpiringSoon(!showExpiringSoon)}
+              style={{ marginRight: "0.5rem" }}
+            />
+            Show Expiring Soon
+          </label>
+
+          <label style={{ fontSize: "0.9rem" }}>
+            <input
+              type="checkbox"
+              checked={showGood}
+              onChange={() => setShowGood(!showGood)}
+              style={{ marginRight: "0.5rem" }}
+            />
+            Show Good Items
           </label>
         </div>
       </div>
@@ -238,7 +267,7 @@ export default function EditableItemList({ items, setItems }) {
         </>
       )}
 
-      {expiringSoonItems.length > 0 && (
+      {showExpiringSoon && expiringSoonItems.length > 0 && (
         <>
           <h3 style={{ color: "orange", margin: "1rem 0 0.5rem" }}>
             Expiring Soon
@@ -247,7 +276,7 @@ export default function EditableItemList({ items, setItems }) {
         </>
       )}
 
-      {goodItems.length > 0 && (
+      {showGood && goodItems.length > 0 && (
         <>
           <h3 style={{ color: "green", margin: "1rem 0 0.5rem" }}>Good</h3>
           {goodItems.map(renderItem)}
