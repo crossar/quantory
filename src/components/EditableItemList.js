@@ -21,6 +21,18 @@ function isExpiringSoonLocal(dateStr) {
   return diffInDays >= 0 && diffInDays <= 3;
 }
 
+function isExpiredLocal(dateStr) {
+  if (!dateStr) return false;
+
+  const [year, month, day] = dateStr.split("T")[0].split("-");
+  const expires = new Date(year, month - 1, day);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return expires < today;
+}
+
 export default function EditableItemList({ items, setItems }) {
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({
@@ -82,6 +94,7 @@ export default function EditableItemList({ items, setItems }) {
     <div className="item-list">
       {items.map((item) => {
         const isExpiringSoon = isExpiringSoonLocal(item.expiresAt);
+        const isExpired = isExpiredLocal(item.expiresAt);
 
         return (
           <div
@@ -140,11 +153,17 @@ export default function EditableItemList({ items, setItems }) {
               <>
                 <div>
                   <span>{item.name}</span>
-                  <p style={{ fontSize: "0.85rem", marginTop: "4px" }}>
+                  <p
+                    style={{
+                      fontSize: "0.85rem",
+                      marginTop: "4px",
+                      color: isExpired ? "red" : "inherit",
+                    }}
+                  >
                     Qty: {item.quantity} | Expires:{" "}
                     {item.expiresAt
                       ? `${formatDateLocal(item.expiresAt)} ${
-                          isExpiringSoon ? "⚠️" : ""
+                          isExpired ? "❌ Expired" : isExpiringSoon ? "⚠️" : ""
                         }`
                       : "—"}
                   </p>
