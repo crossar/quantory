@@ -95,6 +95,7 @@ export default function EditableItemList({ items, setItems }) {
       {items.map((item) => {
         const isExpiringSoon = isExpiringSoonLocal(item.expiresAt);
         const isExpired = isExpiredLocal(item.expiresAt);
+        const isLowStock = item.quantity <= 1;
 
         return (
           <div
@@ -152,7 +153,10 @@ export default function EditableItemList({ items, setItems }) {
             ) : (
               <>
                 <div>
-                  <span>{item.name}</span>
+                  <span style={{ color: isLowStock ? "#e67e22" : "inherit" }}>
+                    {item.name} {isLowStock ? "⚠️ Low Stock" : ""}
+                  </span>
+
                   <p
                     style={{
                       fontSize: "0.85rem",
