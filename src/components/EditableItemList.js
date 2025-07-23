@@ -126,6 +126,29 @@ export default function EditableItemList({ items, setItems }) {
     storage: "#795548",
   };
 
+  // ✅ CSV Export Function in correct place
+  const exportToCSV = () => {
+    const headers = ["Name", "Quantity", "Expires At", "Location"];
+    const rows = items.map((item) => [
+      `"${item.name}"`,
+      item.quantity,
+      item.expiresAt ? formatDateLocal(item.expiresAt) : "—",
+      item.location,
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers, ...rows].map((e) => e.join(",")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "inventory.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const renderItem = (item) => {
     const isExpiringSoon = isExpiringSoonLocal(item.expiresAt);
     const isExpired = isExpiredLocal(item.expiresAt);
@@ -237,28 +260,40 @@ export default function EditableItemList({ items, setItems }) {
           }}
         />
 
+        <button
+          onClick={exportToCSV}
+          style={{
+            margin: "1rem 0",
+            padding: "0.5rem 1rem",
+            backgroundColor: "#2196f3",
+            color: "#fff",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
+        >
+          Export to CSV
+        </button>
+
         <div
           style={{
-            marginTop: "0.5rem",
             display: "flex",
             gap: "1rem",
             flexWrap: "wrap",
           }}
         >
-          <div>
-            <label style={{ fontSize: "0.9rem" }}>
-              Sort by:{" "}
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value)}
-                style={{ marginLeft: "0.5rem", padding: "0.25rem" }}
-              >
-                <option value="name">Name (A-Z)</option>
-                <option value="quantity">Quantity (Low to High)</option>
-                <option value="expires">Expiration (Soonest First)</option>
-              </select>
-            </label>
-          </div>
+          <label style={{ fontSize: "0.9rem" }}>
+            Sort by:{" "}
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              style={{ marginLeft: "0.5rem", padding: "0.25rem" }}
+            >
+              <option value="name">Name (A-Z)</option>
+              <option value="quantity">Quantity (Low to High)</option>
+              <option value="expires">Expiration (Soonest First)</option>
+            </select>
+          </label>
 
           <label style={{ fontSize: "0.9rem" }}>
             <input
