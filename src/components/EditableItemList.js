@@ -32,6 +32,7 @@ export default function EditableItemList({ items, setItems }) {
     quantity: "",
     expiresAt: "",
   });
+  const [sortOption, setSortOption] = useState("name");
   const [searchQuery, setSearchQuery] = useState("");
   const [showExpired, setShowExpired] = useState(false);
   const [showExpiringSoon, setShowExpiringSoon] = useState(true);
@@ -90,16 +91,32 @@ export default function EditableItemList({ items, setItems }) {
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const expiredItems = filteredItems.filter((item) =>
-    isExpiredLocal(item.expiresAt)
+  const sortItems = (items) => {
+    return [...items].sort((a, b) => {
+      if (sortOption === "name") return a.name.localeCompare(b.name);
+      if (sortOption === "quantity") return a.quantity - b.quantity;
+      if (sortOption === "expires")
+        return (
+          new Date(a.expiresAt || Infinity) - new Date(b.expiresAt || Infinity)
+        );
+      return 0;
+    });
+  };
+
+  const expiredItems = sortItems(
+    filteredItems.filter((item) => isExpiredLocal(item.expiresAt))
   );
-  const expiringSoonItems = filteredItems.filter(
-    (item) =>
-      !isExpiredLocal(item.expiresAt) && isExpiringSoonLocal(item.expiresAt)
+  const expiringSoonItems = sortItems(
+    filteredItems.filter(
+      (item) =>
+        !isExpiredLocal(item.expiresAt) && isExpiringSoonLocal(item.expiresAt)
+    )
   );
-  const goodItems = filteredItems.filter(
-    (item) =>
-      !isExpiredLocal(item.expiresAt) && !isExpiringSoonLocal(item.expiresAt)
+  const goodItems = sortItems(
+    filteredItems.filter(
+      (item) =>
+        !isExpiredLocal(item.expiresAt) && !isExpiringSoonLocal(item.expiresAt)
+    )
   );
 
   const locationColors = {
@@ -228,6 +245,21 @@ export default function EditableItemList({ items, setItems }) {
             flexWrap: "wrap",
           }}
         >
+          <div>
+            <label style={{ fontSize: "0.9rem" }}>
+              Sort by:{" "}
+              <select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+                style={{ marginLeft: "0.5rem", padding: "0.25rem" }}
+              >
+                <option value="name">Name (A-Z)</option>
+                <option value="quantity">Quantity (Low to High)</option>
+                <option value="expires">Expiration (Soonest First)</option>
+              </select>
+            </label>
+          </div>
+
           <label style={{ fontSize: "0.9rem" }}>
             <input
               type="checkbox"
@@ -270,7 +302,7 @@ export default function EditableItemList({ items, setItems }) {
           }}
         >
           <h3 style={{ color: "red", marginBottom: "0.5rem" }}>Expired</h3>
-          {expiredItems.map((item) => renderItem(item))}
+          {expiredItems.map(renderItem)}
         </div>
       )}
 
