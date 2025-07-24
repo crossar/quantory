@@ -119,6 +119,9 @@ export default function EditableItemList({ items, setItems }) {
     )
   );
 
+  const hasNotifications =
+    expiredItems.length > 0 || expiringSoonItems.length > 0;
+
   const locationColors = {
     fridge: "#00bcd4",
     freezer: "#3f51b5",
@@ -245,6 +248,32 @@ export default function EditableItemList({ items, setItems }) {
 
   return (
     <div className="item-list">
+      {hasNotifications && (
+        <div
+          style={{
+            backgroundColor: "#fff3cd",
+            border: "1px solid #ffeeba",
+            color: "#856404",
+            padding: "1rem",
+            borderRadius: "8px",
+            marginBottom: "1rem",
+          }}
+        >
+          {expiredItems.length > 0 && (
+            <div>
+              ❌ {expiredItems.length} item{expiredItems.length > 1 ? "s" : ""}{" "}
+              expired
+            </div>
+          )}
+          {expiringSoonItems.length > 0 && (
+            <div>
+              ⚠️ {expiringSoonItems.length} item
+              {expiringSoonItems.length > 1 ? "s" : ""} expiring soon
+            </div>
+          )}
+        </div>
+      )}
+
       <div style={{ marginBottom: "1rem" }}>
         <input
           type="text"
