@@ -37,7 +37,6 @@ export default function EditableItemList({ items, setItems }) {
   const [showExpired, setShowExpired] = useState(false);
   const [showExpiringSoon, setShowExpiringSoon] = useState(true);
   const [showGood, setShowGood] = useState(true);
-  const [locationFilter, setLocationFilter] = useState("all");
 
   const startEdit = (item) => {
     setEditingId(item.id);
@@ -88,11 +87,8 @@ export default function EditableItemList({ items, setItems }) {
     }
   };
 
-  const filteredItems = items.filter(
-    (item) =>
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      (locationFilter === "all" ||
-        item.location?.toLowerCase() === locationFilter)
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const sortItems = (items) => {
@@ -317,20 +313,6 @@ export default function EditableItemList({ items, setItems }) {
         >
           <label style={{ fontSize: "0.9rem" }}>
             Sort by:{" "}
-            <label style={{ fontSize: "0.9rem" }}>
-              Location:
-              <select
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-                style={{ marginLeft: "0.5rem", padding: "0.25rem" }}
-              >
-                <option value="all">All</option>
-                <option value="fridge">Fridge</option>
-                <option value="freezer">Freezer</option>
-                <option value="pantry">Pantry</option>
-                <option value="storage">Storage</option>
-              </select>
-            </label>
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
