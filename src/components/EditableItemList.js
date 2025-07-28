@@ -304,13 +304,7 @@ export default function EditableItemList({ items, setItems }) {
           Export to CSV
         </button>
 
-        <div
-          style={{
-            display: "flex",
-            gap: "1rem",
-            flexWrap: "wrap",
-          }}
-        >
+        <div className="filters-container">
           <label style={{ fontSize: "0.9rem" }}>
             Sort by:{" "}
             <select

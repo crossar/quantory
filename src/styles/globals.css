@@ -160,3 +160,70 @@ button {
 button:hover {
   background: #eb8125;
 }
+
+/*To make app more app-friendly*/
+/* === Responsive Filters & Controls === */
+.filters-container,
+.export-sort-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.filters-container label,
+.export-sort-container label {
+  font-size: 0.95rem;
+}
+
+/* Make item cards stack better on mobile */
+@media (max-width: 600px) {
+  .filters-container,
+  .export-sort-container,
+  .item-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  input,
+  select,
+  button {
+    width: 100%;
+  }
+
+  .item-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .item-card button {
+    width: 100%;
+  }
+
+  .item-card span {
+    max-width: 100%;
+  }
+}
+
+.export-sort-container {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sort-export-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
