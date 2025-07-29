@@ -109,14 +109,14 @@ a {
   transition: box-shadow 0.2s ease;
 }
 
-.item-card form input {
-  margin-right: 0.5rem;
-  padding: 0.3rem;
-}
-
 .item-card:hover {
   background: #eaeaea;
   transform: translateY(-1px);
+}
+
+.item-card form input {
+  margin-right: 0.5rem;
+  padding: 0.3rem;
 }
 
 .item-card span {
@@ -161,8 +161,7 @@ button:hover {
   background: #eb8125;
 }
 
-/*To make app more app-friendly*/
-/* === Responsive Filters & Controls === */
+/* === Filters & Controls === */
 .filters-container,
 .export-sort-container {
   display: flex;
@@ -175,35 +174,6 @@ button:hover {
 .filters-container label,
 .export-sort-container label {
   font-size: 0.95rem;
-}
-
-/* Make item cards stack better on mobile */
-@media (max-width: 600px) {
-  .filters-container,
-  .export-sort-container,
-  .item-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  input,
-  select,
-  button {
-    width: 100%;
-  }
-
-  .item-card {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .item-card button {
-    width: 100%;
-  }
-
-  .item-card span {
-    max-width: 100%;
-  }
 }
 
 .export-sort-container {
@@ -226,4 +196,56 @@ button:hover {
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-bottom: 1rem;
+}
+
+/* === Responsive Layout for Mobile === */
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .filters-container,
+  .export-sort-container {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .item-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .item-card span {
+    max-width: 100%;
+    word-wrap: break-word;
+  }
+
+  .item-card p {
+    font-size: 0.85rem;
+    margin: 0.25rem 0;
+  }
+
+  .item-card button {
+    width: 100%;
+    margin: 0;
+  }
+
+  input,
+  select,
+  button {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  .sort-export-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters-container label {
+    width: 100%;
+  }
 }
