@@ -58,10 +58,9 @@ export default async function handler(req, res) {
     const { id, name } = req.body;
 
     try {
-      const updatedItem = await prisma.toBuyItem.updateMany({
+      const updatedItem = await prisma.toBuyItem.update({
         where: {
           id: parseInt(id),
-          userId,
         },
         data: {
           name,

@@ -33,10 +33,16 @@ export default function EditableToBuyList({ items, setItems }) {
   };
 
   const handleSave = async (id) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.id) {
+      alert("You must be logged in to edit items.");
+      return;
+    }
+
     const res = await fetch("/api/to-buy", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, name: editedName }),
+      body: JSON.stringify({ id, name: editedName, userId: user.id }),
     });
 
     if (res.ok) {
