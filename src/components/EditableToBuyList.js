@@ -81,6 +81,7 @@ export default function EditableToBuyList({ items, setItems }) {
         userId: user.id,
         name: item.name,
         quantity: item.quantity || 1,
+        location: item.location,
       }),
     });
 
@@ -113,7 +114,8 @@ export default function EditableToBuyList({ items, setItems }) {
             </>
           ) : (
             <span className="item-name">
-              {item.name} (Qty: {item.quantity || 1})
+              {item.name} (Qty: {item.quantity || 1}){" "}
+              <span className="item-location">[{item.location}]</span>
             </span>
           )}
 

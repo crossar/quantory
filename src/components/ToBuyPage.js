@@ -5,6 +5,7 @@ export default function ToBuyPage() {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [location, setLocation] = useState("PANTRY"); // default to PANTRY
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -48,7 +49,7 @@ export default function ToBuyPage() {
         name: newItem,
         quantity,
         userId: user.id,
-        location: "PANTRY", // <-- Add this
+        location, // ✅ use selected location
       }),
     });
 
@@ -57,6 +58,7 @@ export default function ToBuyPage() {
       setItems((prev) => [...prev, item]);
       setNewItem("");
       setQuantity(1);
+      setLocation("PANTRY"); // reset to default
     } else {
       alert("Failed to add item");
     }
@@ -95,6 +97,20 @@ export default function ToBuyPage() {
           style={{ width: "70px" }}
           required
         />
+
+        <select
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          style={{ minWidth: "100px", padding: "0.3rem" }}
+        >
+          <option value="">📍Location</option>
+          <option value="FRIDGE">🥶 Fridge</option>
+          <option value="FREEZER">❄️ Freezer</option>
+          <option value="PANTRY">🧺 Pantry</option>
+          <option value="STORAGE">📦 Storage</option>
+          <option value="MEDICINE">💊 Medicine</option>
+        </select>
+
         <button type="submit">➕</button>
       </form>
 

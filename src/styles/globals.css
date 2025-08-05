@@ -352,3 +352,9 @@ button:hover {
 .logout-button:hover {
   background-color: #e85a52;
 }
+
+/* to buy page location */
+.item-location {
+  font-size: 0.8rem;
+  color: #888;
+}

@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { name, quantity, location } = req.body;
+    const { name, quantity, userId, location } = req.body;
 
     if (!name || quantity == null || !userId || !location) {
       return res.status(400).json({ error: "Missing data" });
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
           name,
           quantity,
           userId,
-          location,
+          location, // ✅ make sure location is here
         },
       });
 
@@ -65,23 +65,20 @@ export default async function handler(req, res) {
     }
 
     try {
-      const newItem = await prisma.toBuyItem.create({
+      const updatedItem = await prisma.toBuyItem.update({
+        where: {
+          id: parseInt(id),
+        },
         data: {
           name,
           quantity,
-          userId: parsedUserId,
         },
       });
 
       return res.status(200).json(updatedItem);
     } catch (error) {
-      console.error(
-        "❌ Error creating to-buy item:",
-        error.message,
-        error.stack
-      );
-
-      return res.status(500).json({ error: "Failed to create to-buy item" });
+      console.error("❌ Error updating to-buy item:", error.message);
+      return res.status(500).json({ error: "Failed to update to-buy item" });
     }
   } else {
     return res.status(405).json({ error: "Method not allowed" });
