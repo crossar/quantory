@@ -30,15 +30,14 @@ model Item {
 }
 
 model ToBuyItem {
-  id        Int      @id @default(autoincrement())
-  name      String
-  quantity  Int
-  location  String
-  expiresAt DateTime?
-  createdAt DateTime @default(now())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  id       Int      @id @default(autoincrement())
+  name     String
+  quantity Int
+  userId   Int
+  user     User     @relation(fields: [userId], references: [id])
+  location Location?
 }
+
 
 
 enum Location {

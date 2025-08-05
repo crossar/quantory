@@ -8,22 +8,25 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { name, quantity, location, expiresAt } = req.body;
+    const { name, quantity, location } = req.body;
+
+    if (!name || quantity == null || !userId || !location) {
+      return res.status(400).json({ error: "Missing data" });
+    }
 
     try {
       const newItem = await prisma.toBuyItem.create({
         data: {
           name,
           quantity,
-          location,
-          expiresAt: expiresAt ? new Date(expiresAt) : null,
           userId,
+          location,
         },
       });
 
       return res.status(200).json(newItem);
     } catch (error) {
-      console.error("Error creating to-buy item:", error);
+      console.error("❌ Error creating to-buy item:", error);
       return res.status(500).json({ error: "Failed to create to-buy item" });
     }
   } else if (req.method === "GET") {
@@ -62,23 +65,25 @@ export default async function handler(req, res) {
     }
 
     try {
-      const updatedItem = await prisma.toBuyItem.update({
-        where: {
-          id: parseInt(id),
-        },
+      const newItem = await prisma.toBuyItem.create({
         data: {
           name,
           quantity,
+          userId: parsedUserId,
         },
       });
 
       return res.status(200).json(updatedItem);
     } catch (error) {
-      console.error("Error updating to-buy item:", error);
-      return res.status(500).json({ error: "Failed to update item" });
+      console.error(
+        "❌ Error creating to-buy item:",
+        error.message,
+        error.stack
+      );
+
+      return res.status(500).json({ error: "Failed to create to-buy item" });
     }
   } else {
-    // ✅ This else now belongs properly inside the handler
     return res.status(405).json({ error: "Method not allowed" });
   }
 }

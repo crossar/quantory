@@ -4,31 +4,18 @@ import EditableToBuyList from "./EditableToBuyList";
 export default function ToBuyPage() {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
-  const [location, setLocation] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [expiresAt, setExpiresAt] = useState("");
 
   useEffect(() => {
     const fetchItems = async () => {
       const user = JSON.parse(localStorage.getItem("user"));
-      console.log("user from localStorage:", user); // for testing
-
       if (!user) {
         alert("You must be logged in");
         return;
       }
 
-      console.log("Sending this to backend:", {
-        name: newItem,
-        location,
-        quantity,
-        expiresAt: expiresAt || null,
-        userId: user.id,
-      });
       try {
         const res = await fetch(`/api/to-buy?userId=${user.id}`);
-
-
         const data = await res.json();
         if (Array.isArray(data)) {
           setItems(data);
@@ -43,28 +30,25 @@ export default function ToBuyPage() {
 
     fetchItems();
   }, []);
+
   const handleAdd = async (e) => {
     e.preventDefault();
-    if (!newItem.trim() || !location) return;
+    if (!newItem.trim()) return;
 
     const user = JSON.parse(localStorage.getItem("user"));
-    console.log("user from localStorage:", user); // 👈 this will show up in Console
-
-   if (!user) {
-  window.location.href = "/login"; // redirect to login page
-  return;
-}
-
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
 
     const res = await fetch("/api/to-buy", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: newItem,
-        location,
         quantity,
-        expiresAt: expiresAt || null,
         userId: user.id,
+        location: "PANTRY", // <-- Add this
       }),
     });
 
@@ -72,9 +56,7 @@ export default function ToBuyPage() {
       const item = await res.json();
       setItems((prev) => [...prev, item]);
       setNewItem("");
-      setLocation("");
       setQuantity(1);
-      setExpiresAt("");
     } else {
       alert("Failed to add item");
     }
@@ -102,15 +84,8 @@ export default function ToBuyPage() {
           placeholder="Item name"
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
+          required
         />
-        <select value={location} onChange={(e) => setLocation(e.target.value)}>
-          <option value="">Location</option>
-          <option value="fridge">Fridge</option>
-          <option value="freezer">Freezer</option>
-          <option value="pantry">Pantry</option>
-          <option value="storage-room">Storage Room</option>
-          <option value="medicine">Medicine</option>
-        </select>
         <input
           type="number"
           min="1"
@@ -118,11 +93,7 @@ export default function ToBuyPage() {
           value={quantity}
           onChange={(e) => setQuantity(Number(e.target.value))}
           style={{ width: "70px" }}
-        />
-        <input
-          type="date"
-          value={expiresAt}
-          onChange={(e) => setExpiresAt(e.target.value)}
+          required
         />
         <button type="submit">➕</button>
       </form>
