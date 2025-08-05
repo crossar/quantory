@@ -13,5 +13,12 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Invalid credentials" });
   }
 
-  res.status(200).json({ user: { id: user.id, username: user.username } });
+  res.status(200).json({
+    user: {
+      id: user.id,
+      username: user.username,
+      firstName: user.firstName || null,
+      lastName: user.lastName || null,
+    },
+  });
 }

@@ -17,23 +17,28 @@ export default function ProfilePage() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
-    router.push("/login"); // go to login after logout
+    router.push("/login");
   };
 
   if (!user) return <p>Loading profile...</p>;
 
   return (
-    <div className="container">
-      <h1>Profile</h1>
-      <p>
-        <strong>Username:</strong> {user.username}
-      </p>
-      {user.firstName && (
-        <p>
-          <strong>Full Name:</strong> {user.firstName} {user.lastName}
-        </p>
-      )}
-      <button onClick={handleLogout}>Logout</button>
+    <div className="profile-container">
+      <h1>Your Profile</h1>
+      <div className="profile-card">
+        <div className="profile-info">
+          <p>
+            <strong>Full Name:</strong> {user.firstName || "N/A"}{" "}
+            {user.lastName || ""}
+          </p>
+          <p>
+            <strong>Username:</strong> {user.username || "N/A"}
+          </p>
+        </div>
+        <button className="logout-button" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
     </div>
   );
 }

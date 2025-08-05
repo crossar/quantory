@@ -222,3 +222,39 @@ button:hover {
     text-align: center;
   }
 }
+
+/* profile page*/
+
+.profile-container {
+  max-width: 500px;
+  margin: 3rem auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.profile-card {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-info p {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.logout-button {
+  background-color: #ff6961;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.logout-button:hover {
+  background-color: #e85a52;
+}
