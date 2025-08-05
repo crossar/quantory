@@ -3,38 +3,21 @@ import { useState } from "react";
 export default function EditableToBuyList({ items, setItems }) {
   const [editingId, setEditingId] = useState(null);
   const [editedName, setEditedName] = useState("");
+  const [editedQty, setEditedQty] = useState(1);
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Remove this from your list?");
-    if (!confirmDelete) return;
-
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || !user.id) {
-      alert("You must be logged in to delete items.");
-      return;
-    }
-
-    const res = await fetch("/api/to-buy", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, userId: user.id }), // ✅ include userId
-    });
-
-    if (res.ok) {
-      setItems(items.filter((item) => item.id !== id));
+  const handleEditToggle = (item) => {
+    if (editingId === item.id) {
+      handleSave(item.id);
     } else {
-      alert("Failed to delete item");
+      setEditingId(item.id);
+      setEditedName(item.name);
+      setEditedQty(item.quantity || 1);
     }
-  };
-
-  const handleEdit = (id, currentName) => {
-    setEditingId(id);
-    setEditedName(currentName);
   };
 
   const handleSave = async (id) => {
     const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || !user.id) {
+    if (!user?.id) {
       alert("You must be logged in to edit items.");
       return;
     }
@@ -42,7 +25,12 @@ export default function EditableToBuyList({ items, setItems }) {
     const res = await fetch("/api/to-buy", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, name: editedName, userId: user.id }),
+      body: JSON.stringify({
+        id,
+        name: editedName,
+        quantity: Number(editedQty),
+        userId: user.id,
+      }),
     });
 
     if (res.ok) {
@@ -52,12 +40,35 @@ export default function EditableToBuyList({ items, setItems }) {
     }
   };
 
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Remove this from your list?");
+    if (!confirmDelete) return;
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user?.id) {
+      alert("You must be logged in to delete items.");
+      return;
+    }
+
+    const res = await fetch("/api/to-buy", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, userId: user.id }),
+    });
+
+    if (res.ok) {
+      setItems(items.filter((item) => item.id !== id));
+    } else {
+      alert("Failed to delete item");
+    }
+  };
+
   const handleMoveToInventory = async (item) => {
     const confirmMove = window.confirm(`Move "${item.name}" to inventory?`);
     if (!confirmMove) return;
 
     const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || !user.id) {
+    if (!user?.id) {
       alert("You must be logged in to move items.");
       return;
     }
@@ -67,9 +78,9 @@ export default function EditableToBuyList({ items, setItems }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id: item.id,
-        userId: user.id, // ✅ send user ID
+        userId: user.id,
         name: item.name,
-        location: item.location,
+        quantity: item.quantity || 1,
       }),
     });
 
@@ -87,40 +98,46 @@ export default function EditableToBuyList({ items, setItems }) {
           {editingId === item.id ? (
             <>
               <input
+                type="text"
                 value={editedName}
                 onChange={(e) => setEditedName(e.target.value)}
+                style={{ flex: 2 }}
               />
-              <button onClick={() => handleSave(item.id)} className="edit-btn">
-                💾
-              </button>
+              <input
+                type="number"
+                min="1"
+                value={editedQty}
+                onChange={(e) => setEditedQty(e.target.value)}
+                style={{ width: "60px" }}
+              />
             </>
           ) : (
-            <>
-              <span className="item-name">
-                {item.name} (Qty: {item.quantity || 1})
-              </span>
-              <div className="btn-group-inline">
-                <button
-                  onClick={() => handleEdit(item.id, item.name)}
-                  className="edit-btn"
-                >
-                  ✏️
-                </button>
-                <button
-                  onClick={() => handleMoveToInventory(item)}
-                  className="move-btn"
-                >
-                  ✅
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="delete-btn"
-                >
-                  ❌
-                </button>
-              </div>
-            </>
+            <span className="item-name">
+              {item.name} (Qty: {item.quantity || 1})
+            </span>
           )}
+
+          <div className="btn-group-inline">
+            <button
+              onClick={() => handleEditToggle(item)}
+              className="edit-btn"
+              title={editingId === item.id ? "Save" : "Edit"}
+            >
+              {editingId === item.id ? "💾" : "✏️"}
+            </button>
+            <button
+              onClick={() => handleMoveToInventory(item)}
+              className="move-btn"
+            >
+              ✅
+            </button>
+            <button
+              onClick={() => handleDelete(item.id)}
+              className="delete-btn"
+            >
+              ❌
+            </button>
+          </div>
         </li>
       ))}
     </ul>

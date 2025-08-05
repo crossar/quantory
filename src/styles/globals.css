@@ -167,23 +167,16 @@ h1 {
 }
 
 .item-name {
+  flex-grow: 1;
   font-weight: 500;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .btn-group-inline {
   display: flex;
   gap: 0.4rem;
-}
-
-.btn-group-inline button {
-  padding: 4px 8px;
-  font-size: 0.9rem;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
 }
 
 .edit-btn {
@@ -198,6 +191,30 @@ h1 {
 .delete-btn {
   background-color: #f44336;
   color: white;
+}
+
+.item-card-row input {
+  flex-grow: 1;
+  padding: 0.4rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.item-card-row input[type="text"] {
+  flex-grow: 1;
+  padding: 0.4rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.item-card-row input[type="number"] {
+  padding: 0.4rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 60px;
 }
 
 /* === Inputs & Buttons === */

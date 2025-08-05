@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 
 export default async function handler(req, res) {
-  const userId = parseInt(req.query.userId || req.body?.userId); // for GET, POST, PUT, DELETE
+  const userId = parseInt(req.query.userId || req.body?.userId);
 
   if (!userId) {
     return res.status(401).json({ error: "User not authenticated" });
@@ -21,10 +21,10 @@ export default async function handler(req, res) {
         },
       });
 
-      res.status(200).json(newItem);
+      return res.status(200).json(newItem);
     } catch (error) {
       console.error("Error creating to-buy item:", error);
-      res.status(500).json({ error: "Failed to create to-buy item" });
+      return res.status(500).json({ error: "Failed to create to-buy item" });
     }
   } else if (req.method === "GET") {
     try {
@@ -33,10 +33,10 @@ export default async function handler(req, res) {
         orderBy: { createdAt: "desc" },
       });
 
-      res.status(200).json(items);
+      return res.status(200).json(items);
     } catch (error) {
       console.error("Error fetching to-buy items:", error);
-      res.status(500).json({ error: "Failed to fetch items" });
+      return res.status(500).json({ error: "Failed to fetch items" });
     }
   } else if (req.method === "DELETE") {
     const { id } = req.body;
@@ -49,13 +49,17 @@ export default async function handler(req, res) {
         },
       });
 
-      res.status(200).json({ success: true });
+      return res.status(200).json({ success: true });
     } catch (error) {
       console.error("Error deleting to-buy item:", error);
-      res.status(500).json({ error: "Failed to delete item" });
+      return res.status(500).json({ error: "Failed to delete item" });
     }
   } else if (req.method === "PUT") {
-    const { id, name } = req.body;
+    const { id, name, quantity } = req.body;
+
+    if (!id || !name || quantity == null) {
+      return res.status(400).json({ error: "Missing data" });
+    }
 
     try {
       const updatedItem = await prisma.toBuyItem.update({
@@ -64,15 +68,17 @@ export default async function handler(req, res) {
         },
         data: {
           name,
+          quantity,
         },
       });
 
-      res.status(200).json(updatedItem);
+      return res.status(200).json(updatedItem);
     } catch (error) {
       console.error("Error updating to-buy item:", error);
-      res.status(500).json({ error: "Failed to update item" });
+      return res.status(500).json({ error: "Failed to update item" });
     }
   } else {
-    res.status(405).json({ error: "Method not allowed" });
+    // ✅ This else now belongs properly inside the handler
+    return res.status(405).json({ error: "Method not allowed" });
   }
 }
