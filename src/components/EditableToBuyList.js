@@ -83,24 +83,42 @@ export default function EditableToBuyList({ items, setItems }) {
   return (
     <ul className="item-list">
       {items.map((item) => (
-        <li key={item.id} className="item-card">
+        <li key={item.id} className="item-card-row">
           {editingId === item.id ? (
             <>
               <input
                 value={editedName}
                 onChange={(e) => setEditedName(e.target.value)}
               />
-              <button onClick={() => handleSave(item.id)}>💾</button>
+              <button onClick={() => handleSave(item.id)} className="edit-btn">
+                💾
+              </button>
             </>
           ) : (
             <>
-              <span>
+              <span className="item-name">
                 {item.name} (Qty: {item.quantity || 1})
               </span>
-
-              <button onClick={() => handleEdit(item.id, item.name)}>✏️</button>
-              <button onClick={() => handleMoveToInventory(item)}>✅</button>
-              <button onClick={() => handleDelete(item.id)}>❌</button>
+              <div className="btn-group-inline">
+                <button
+                  onClick={() => handleEdit(item.id, item.name)}
+                  className="edit-btn"
+                >
+                  ✏️
+                </button>
+                <button
+                  onClick={() => handleMoveToInventory(item)}
+                  className="move-btn"
+                >
+                  ✅
+                </button>
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="delete-btn"
+                >
+                  ❌
+                </button>
+              </div>
             </>
           )}
         </li>
