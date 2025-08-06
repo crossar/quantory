@@ -102,21 +102,24 @@ export default function EditableToBuyList({ items, setItems }) {
                 type="text"
                 value={editedName}
                 onChange={(e) => setEditedName(e.target.value)}
-                style={{ flex: 2 }}
+                style={{ flex: 1, minWidth: "140px" }} // wider text input
               />
               <input
                 type="number"
                 min="1"
                 value={editedQty}
                 onChange={(e) => setEditedQty(e.target.value)}
-                style={{ width: "60px" }}
+                style={{ width: "50px" }} // narrower quantity input
               />
             </>
           ) : (
-            <span className="item-name">
-              {item.name} (Qty: {item.quantity || 1}){" "}
-              <span className="item-location">[{item.location}]</span>
-            </span>
+            <div className="item-info">
+              <div className="item-line">
+                <span className="item-name">{item.name}</span>
+                <span className="item-qty">Qty: {item.quantity || 1}</span>
+              </div>
+              <div className="item-location">📍 {item.location}</div>
+            </div>
           )}
 
           <div className="btn-group-inline">

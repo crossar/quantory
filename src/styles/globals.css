@@ -354,7 +354,53 @@ button:hover {
 }
 
 /* to buy page location */
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.item-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  font-weight: 500;
+}
+
+.item-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-qty {
+  color: #444;
+  font-size: 0.95rem;
+}
+
 .item-location {
-  font-size: 0.8rem;
-  color: #888;
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+}
+
+.item-card-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.edit-name-input {
+  flex: 2;
+  min-width: 0;
+  padding: 0.3rem;
+}
+
+.edit-qty-input {
+  width: 60px;
+  padding: 0.3rem;
 }
