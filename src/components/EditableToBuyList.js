@@ -95,54 +95,113 @@ export default function EditableToBuyList({ items, setItems }) {
   return (
     <ul className="item-list">
       {items.map((item) => (
-        <li key={item.id} className="item-card-row">
+        <li
+          key={item.id}
+          className="item-card-row"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between", // ✅ helps position buttons better
+            gap: "0.5rem",
+            width: "100%",
+          }}
+        >
           {editingId === item.id ? (
             <>
-              <input
-                type="text"
-                value={editedName}
-                onChange={(e) => setEditedName(e.target.value)}
-                style={{ flex: 1, minWidth: "140px" }} // wider text input
-              />
-              <input
-                type="number"
-                min="1"
-                value={editedQty}
-                onChange={(e) => setEditedQty(e.target.value)}
-                style={{ width: "50px" }} // narrower quantity input
-              />
+              <div
+                style={{
+                  display: "flex",
+                  flex: 1,
+                  gap: "0.5rem",
+                  alignItems: "center",
+                }}
+              >
+                <input
+                  type="text"
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  style={{ flex: 1, minWidth: "140px", padding: "0.4rem" }}
+                />
+                <input
+                  type="number"
+                  min="1"
+                  value={editedQty}
+                  onChange={(e) => setEditedQty(e.target.value)}
+                  style={{
+                    width: "40px", // 👈 shortened
+                    padding: "0.3rem",
+                    textAlign: "center",
+                  }}
+                />
+              </div>
+
+              <div
+                className="btn-group-inline"
+                style={{
+                  display: "flex",
+                  gap: "0.3rem",
+                  flexShrink: 0,
+                }}
+              >
+                <button
+                  onClick={() => handleEditToggle(item)}
+                  className="edit-btn"
+                  title="Save"
+                >
+                  💾
+                </button>
+                <button
+                  onClick={() => handleMoveToInventory(item)}
+                  className="move-btn"
+                >
+                  ✅
+                </button>
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="delete-btn"
+                >
+                  ❌
+                </button>
+              </div>
             </>
           ) : (
-            <div className="item-info">
-              <div className="item-line">
-                <span className="item-name">{item.name}</span>
-                <span className="item-qty">Qty: {item.quantity || 1}</span>
+            <>
+              <div style={{ flex: 1 }}>
+                <span className="item-name">
+                  <strong>{item.name}</strong> &nbsp; Qty: {item.quantity || 1}
+                </span>
+                <div
+                  className="item-location"
+                  style={{ fontSize: "0.85rem", color: "#a33" }}
+                >
+                  📍 {item.location?.toLowerCase()}
+                </div>
               </div>
-              <div className="item-location">📍 {item.location}</div>
-            </div>
-          )}
 
-          <div className="btn-group-inline">
-            <button
-              onClick={() => handleEditToggle(item)}
-              className="edit-btn"
-              title={editingId === item.id ? "Save" : "Edit"}
-            >
-              {editingId === item.id ? "💾" : "✏️"}
-            </button>
-            <button
-              onClick={() => handleMoveToInventory(item)}
-              className="move-btn"
-            >
-              ✅
-            </button>
-            <button
-              onClick={() => handleDelete(item.id)}
-              className="delete-btn"
-            >
-              ❌
-            </button>
-          </div>
+              <div className="btn-group-inline">
+                <button
+                  onClick={() => handleEditToggle(item)}
+                  className="edit-btn"
+                  title="Edit"
+                >
+                  ✏️
+                </button>
+                <button
+                  onClick={() => handleMoveToInventory(item)}
+                  className="move-btn"
+                >
+                  ✅
+                </button>
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="delete-btn"
+                >
+                  ❌
+                </button>
+              </div>
+            </>
+          )}
         </li>
       ))}
     </ul>
