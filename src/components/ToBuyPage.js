@@ -76,27 +76,37 @@ export default function ToBuyPage() {
         style={{
           marginBottom: "1rem",
           display: "flex",
-          flexWrap: "wrap",
           gap: "0.5rem",
           alignItems: "center",
+          flexWrap: "wrap",
         }}
       >
-        <input
-          type="text"
-          placeholder="Item name"
-          value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
-          required
-        />
-        <input
-          type="number"
-          min="1"
-          placeholder="Qty"
-          value={quantity}
-          onChange={(e) => setQuantity(Number(e.target.value))}
-          style={{ width: "70px" }}
-          required
-        />
+        <div
+          style={{
+            display: "flex",
+            gap: "0.5rem",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Item name"
+            value={newItem}
+            onChange={(e) => setNewItem(e.target.value)}
+            required
+            style={{ flexGrow: 1 }}
+          />
+          <input
+            type="number"
+            min="1"
+            placeholder="Qty"
+            value={quantity}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            style={{ width: "70px" }}
+            required
+          />
+        </div>
 
         <select
           value={location}
