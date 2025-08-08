@@ -6,7 +6,7 @@ export default function BottomNav() {
   const router = useRouter();
   const current = router.pathname;
 
-  const { user, setUser } = useUser(); // 👈 use context
+  const { user, setUser } = useUser();
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -21,25 +21,28 @@ export default function BottomNav() {
     { href: "/profile", label: "👤 Profile" },
   ];
 
+  // ✅ Only show top-right greeting/logout if NOT on profile page
+  const showTopRight = current !== "/profile";
+
   return (
     <>
-      {/* 👇 Top-right greeting */}
-      <div style={topRightStyle}>
-        {user ? (
-          <>
-            <span style={{ marginRight: "0.5rem" }}>Hi, {user.username}</span>
-            <button onClick={handleLogout} style={{ fontSize: "12px" }}>
-              Logout
-            </button>
-          </>
-        ) : (
-          <Link href="/login" style={{ fontSize: "12px" }}>
-            Login
-          </Link>
-        )}
-      </div>
+      {showTopRight && (
+        <div style={topRightStyle}>
+          {user ? (
+            <>
+              <span style={{ marginRight: "0.5rem" }}>Hi, {user.username}</span>
+              <button onClick={handleLogout} style={{ fontSize: "12px" }}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link href="/login" style={{ fontSize: "12px" }}>
+              Login
+            </Link>
+          )}
+        </div>
+      )}
 
-      {/* 👇 Bottom navigation */}
       <nav style={navStyle}>
         {links.map((link) => (
           <Link
