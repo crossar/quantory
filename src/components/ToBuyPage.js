@@ -5,7 +5,7 @@ export default function ToBuyPage() {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [location, setLocation] = useState("PANTRY"); // default to PANTRY
+  const [location, setLocation] = useState(""); // Start with an empty value for location
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -49,7 +49,7 @@ export default function ToBuyPage() {
         name: newItem,
         quantity,
         userId: user.id,
-        location, // ✅ use selected location
+        location: location || "Unspecified", // If location is empty, set it as "Unspecified"
       }),
     });
 
@@ -58,7 +58,7 @@ export default function ToBuyPage() {
       setItems((prev) => [...prev, item]);
       setNewItem("");
       setQuantity(1);
-      setLocation("PANTRY"); // reset to default
+      setLocation(""); // Reset to default value (empty)
     } else {
       alert("Failed to add item");
     }
@@ -95,7 +95,12 @@ export default function ToBuyPage() {
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
             required
-            style={{ flexGrow: 1 }}
+            style={{
+              flex: 3, // Name still takes up more space
+              padding: "0.4rem 0.6rem", // Reduced padding for a skinnier look
+              fontSize: "1rem",
+              minWidth: "150px", // Minimum width for readability
+            }}
           />
           <input
             type="number"
@@ -103,7 +108,11 @@ export default function ToBuyPage() {
             placeholder="Qty"
             value={quantity}
             onChange={(e) => setQuantity(Number(e.target.value))}
-            style={{ width: "70px" }}
+            style={{
+              width: "60px", // Reduced width for the quantity input
+              padding: "0.4rem 0.6rem", // Same reduced padding
+              fontSize: "1rem",
+            }}
             required
           />
         </div>
@@ -111,9 +120,14 @@ export default function ToBuyPage() {
         <select
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          style={{ minWidth: "100px", padding: "0.3rem" }}
+          style={{
+            minWidth: "100px",
+            padding: "0.4rem 0.6rem", // Reduced padding for consistency
+          }}
         >
-          <option value="">📍Location</option>
+          <option value="" disabled>
+            📍 Location (Search or select)
+          </option>
           <option value="FRIDGE">🥶 Fridge</option>
           <option value="FREEZER">❄️ Freezer</option>
           <option value="PANTRY">🧺 Pantry</option>
