@@ -38,10 +38,30 @@ a {
 }
 
 .container {
-  max-width: 600px;
   margin: auto;
   padding: 2rem 1rem 5rem;
-  font-family: "Segoe UI", Roboto, sans-serif;
+  max-width: 640px; /* base */
+}
+
+@media (min-width: 768px) {
+  /* tablets */
+  .container {
+    max-width: 760px;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* small desktops */
+  .container {
+    max-width: 900px;
+  }
+}
+
+@media (min-width: 1280px) {
+  /* larger desktops */
+  .container {
+    max-width: 1040px;
+  }
 }
 
 .card-list {
