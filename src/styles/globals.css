@@ -362,7 +362,7 @@ button:hover {
 /* --- List rows (single source of truth) --- */
 .compact-row {
   display: grid;
-  grid-template-columns: 10px minmax(0, 1fr) 44px 84px auto; /* badge | name | qty | date | actions */
+  grid-template-columns: 10px minmax(150px, 1fr) 44px 96px min-content;
   align-items: center;
   gap: 0.35rem;
   padding: 0.28rem 0.45rem;
@@ -373,7 +373,7 @@ button:hover {
   min-height: 36px;
 }
 .compact-row.editing {
-  grid-template-columns: 10px minmax(0, 1fr) 64px 140px auto; /* room for inputs in edit mode */
+  grid-template-columns: 10px minmax(170px, 1fr) 56px 128px min-content;
 }
 
 /* badge */
@@ -489,27 +489,60 @@ button:hover {
 }
 
 /* --- Mobile tweaks: hide read-only qty/date, but NOT in edit mode --- */
+/* --- Make edit rows wrap nicely on phones --- */
+.name-input,
+.qty-input,
+.date-input {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Mobile layout */
 @media (max-width: 460px) {
-  /* keep name visible in edit mode; prevent collapse */
+  /* view mode: tighter but one line */
   .compact-row {
-    grid-template-columns: 10px minmax(120px, 1fr) 44px 84px min-content; /* view */
+    grid-template-columns: 10px minmax(120px, 1fr) 40px 76px min-content;
+    gap: 0.3rem;
   }
 
+  /* edit mode: two-line grid so nothing overflows */
   .compact-row.editing {
-    grid-template-columns: 10px minmax(140px, 1fr) 56px 120px min-content; /* edit */
+    grid-template-columns: 10px 1fr min-content;
+    grid-auto-rows: min-content;
+    align-items: start;
+    gap: 0.3rem;
   }
 
-  /* tighter action buttons so they don't steal space */
-  .compact-row .icon-btn {
-    width: 32px;
+  /* place fields on their own lines under the name */
+  .compact-row.editing .name-input {
+    grid-column: 2 / 3;
+  }
+  .compact-row.editing .qty-input {
+    grid-column: 2 / 3;
+  }
+  .compact-row.editing .date-input {
+    grid-column: 2 / 3;
+  }
+
+  /* keep actions to the right, spanning the row height */
+  .compact-row.editing .actions {
+    grid-column: 3 / 4;
+    grid-row: 1 / span 3;
+    align-self: start;
+  }
+
+  /* smaller action buttons */
+  .actions .icon-btn {
+    width: 28px;
     height: 28px;
     font-size: 14px;
     padding: 0;
   }
+}
 
-  @media (max-width: 420px) {
-    .compact-row {
-      grid-template-columns: 10px minmax(120px, 1fr) 40px 72px min-content;
-    }
+/* extra-small phones */
+@media (max-width: 380px) {
+  .compact-row {
+    grid-template-columns: 10px minmax(110px, 1fr) 36px 68px min-content;
   }
 }
