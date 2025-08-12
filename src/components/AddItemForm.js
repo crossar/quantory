@@ -28,9 +28,9 @@ export default function AddItemForm({ location, onItemAdded }) {
         location: location.toUpperCase(),
         quantity: parseInt(form.quantity),
         expiresAt: form.expiresAt || null,
-        userId: user.id, 
+        userId: user.id,
       }),
-    }); 
+    });
 
     if (res.ok) {
       const newItem = await res.json();
@@ -42,31 +42,28 @@ export default function AddItemForm({ location, onItemAdded }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "1.5rem" }}>
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-        <input
-          type="text"
-          name="name"
-          value={form.name}
-          placeholder="Item name"
-          onChange={handleChange}
-        />
-        <input
-          type="number"
-          name="quantity"
-          value={form.quantity}
-          min="1"
-          onChange={handleChange}
-          style={{ width: "80px" }}
-        />
-        <input
-          type="date"
-          name="expiresAt"
-          value={form.expiresAt}
-          onChange={handleChange}
-        />
-        <button type="submit">Add</button>
-      </div>
+    <form onSubmit={handleSubmit} className="inline-form">
+      <input
+        type="text"
+        name="name"
+        value={form.name}
+        placeholder="Item name"
+        onChange={handleChange}
+      />
+      <input
+        type="number"
+        name="quantity"
+        value={form.quantity}
+        min="1"
+        onChange={handleChange}
+      />
+      <input
+        type="date"
+        name="expiresAt"
+        value={form.expiresAt}
+        onChange={handleChange}
+      />
+      <button type="submit">Add</button>
     </form>
   );
 }

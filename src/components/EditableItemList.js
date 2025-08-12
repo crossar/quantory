@@ -1,25 +1,32 @@
 import { useState } from "react";
 
+function formatDateShort(dateStr) {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr);
+  const y = new Date().getFullYear();
+  return d.getFullYear() === y
+    ? `${d.getMonth() + 1}/${d.getDate()}`
+    : `${d.getMonth() + 1}/${d.getDate()}/${String(d.getFullYear()).slice(-2)}`;
+}
+
 function formatDateLocal(dateStr) {
   if (!dateStr) return "—";
-  const [year, month, day] = dateStr.split("T")[0].split("-");
-  return new Date(year, month - 1, day).toLocaleDateString();
+  const [y, m, d] = dateStr.split("T")[0].split("-");
+  return new Date(y, m - 1, d).toLocaleDateString();
 }
-
 function isExpiringSoonLocal(dateStr) {
   if (!dateStr) return false;
-  const [year, month, day] = dateStr.split("T")[0].split("-");
-  const expires = new Date(year, month - 1, day);
+  const [y, m, d] = dateStr.split("T")[0].split("-");
+  const expires = new Date(y, m - 1, d);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const diffInDays = (expires - today) / (1000 * 60 * 60 * 24);
-  return diffInDays >= 0 && diffInDays <= 3;
+  const diff = (expires - today) / 86400000;
+  return diff >= 0 && diff <= 3;
 }
-
 function isExpiredLocal(dateStr) {
   if (!dateStr) return false;
-  const [year, month, day] = dateStr.split("T")[0].split("-");
-  const expires = new Date(year, month - 1, day);
+  const [y, m, d] = dateStr.split("T")[0].split("-");
+  const expires = new Date(y, m - 1, d);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return expires < today;
@@ -32,9 +39,9 @@ export default function EditableItemList({ items, setItems }) {
     quantity: "",
     expiresAt: "",
   });
-  const [sortOption, setSortOption] = useState("name");
+  const [sortOption, setSortOption] = useState("expires");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showExpired, setShowExpired] = useState(false);
+  const [showExpired, setShowExpired] = useState(true);
   const [showExpiringSoon, setShowExpiringSoon] = useState(true);
   const [showGood, setShowGood] = useState(true);
 
@@ -42,355 +49,261 @@ export default function EditableItemList({ items, setItems }) {
     setEditingId(item.id);
     setEditData({
       name: item.name,
-      quantity: item.quantity,
+      quantity: String(item.quantity ?? ""),
       expiresAt: item.expiresAt ? item.expiresAt.split("T")[0] : "",
     });
   };
-
   const cancelEdit = () => {
     setEditingId(null);
     setEditData({ name: "", quantity: "", expiresAt: "" });
   };
-
   const handleEdit = async (id) => {
     const res = await fetch("/api/edit-item", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, ...editData }),
+      body: JSON.stringify({
+        id,
+        ...editData,
+        quantity: Number(editData.quantity || 0),
+      }),
     });
-
     if (res.ok) {
-      const updatedItem = await res.json();
-      setItems(items.map((item) => (item.id === id ? updatedItem : item)));
+      const updated = await res.json();
+      setItems(items.map((i) => (i.id === id ? updated : i)));
       cancelEdit();
-    } else {
-      alert("Failed to update item");
-    }
+    } else alert("Failed to update item");
   };
-
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this item?"
-    );
-    if (!confirmDelete) return;
-
+    if (!window.confirm("Delete this item?")) return;
     const res = await fetch("/api/delete-item", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     });
-
-    if (res.ok) {
-      setItems(items.filter((item) => item.id !== id));
-    } else {
-      alert("Failed to delete item");
-    }
+    if (res.ok) setItems(items.filter((i) => i.id !== id));
+    else alert("Failed to delete item");
   };
 
-  const filteredItems = items.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const exportToCSV = () => {
+    const headers = ["Name", "Quantity", "Expires At", "Location"];
+    const rows = items.map((i) => [
+      `"${i.name}"`,
+      i.quantity,
+      i.expiresAt ? formatDateLocal(i.expiresAt) : "—",
+      i.location,
+    ]);
+    const csv =
+      "data:text/csv;charset=utf-8," +
+      [headers, ...rows].map((r) => r.join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = encodeURI(csv);
+    a.download = "inventory.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
-  const sortItems = (items) => {
-    return [...items].sort((a, b) => {
-      if (sortOption === "name") return a.name.localeCompare(b.name);
-      if (sortOption === "quantity") return a.quantity - b.quantity;
-      if (sortOption === "expires")
-        return (
-          new Date(a.expiresAt || Infinity) - new Date(b.expiresAt || Infinity)
-        );
-      return 0;
+  const filtered = items.filter((i) =>
+    i.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const sortItems = (arr) => {
+    const copy = [...arr];
+    if (sortOption === "name")
+      return copy.sort((a, b) => a.name.localeCompare(b.name));
+    if (sortOption === "quantity")
+      return copy.sort((a, b) => (a.quantity || 0) - (b.quantity || 0));
+    return copy.sort((a, b) => {
+      const ax = a.expiresAt
+        ? new Date(a.expiresAt)
+        : new Date(8640000000000000);
+      const bx = b.expiresAt
+        ? new Date(b.expiresAt)
+        : new Date(8640000000000000);
+      return ax - bx;
     });
   };
 
   const expiredItems = sortItems(
-    filteredItems.filter((item) => isExpiredLocal(item.expiresAt))
+    filtered.filter((i) => isExpiredLocal(i.expiresAt))
   );
-  const expiringSoonItems = sortItems(
-    filteredItems.filter(
-      (item) =>
-        !isExpiredLocal(item.expiresAt) && isExpiringSoonLocal(item.expiresAt)
+  const soonItems = sortItems(
+    filtered.filter(
+      (i) => !isExpiredLocal(i.expiresAt) && isExpiringSoonLocal(i.expiresAt)
     )
   );
   const goodItems = sortItems(
-    filteredItems.filter(
-      (item) =>
-        !isExpiredLocal(item.expiresAt) && !isExpiringSoonLocal(item.expiresAt)
+    filtered.filter(
+      (i) => !isExpiredLocal(i.expiresAt) && !isExpiringSoonLocal(i.expiresAt)
     )
   );
 
-  const hasNotifications =
-    expiredItems.length > 0 || expiringSoonItems.length > 0;
+  // inside EditableItemList
 
-  const locationColors = {
-    fridge: "#00bcd4",
-    freezer: "#3f51b5",
-    pantry: "#4caf50",
-    storage: "#795548",
-  };
+  const Row = (item) => {
+    const expired = isExpiredLocal(item.expiresAt);
+    const soon = !expired && isExpiringSoonLocal(item.expiresAt);
+    const badgeClass = expired
+      ? "badge-red"
+      : soon
+      ? "badge-orange"
+      : "badge-green";
 
-  // ✅ CSV Export Function in correct place
-  const exportToCSV = () => {
-    const headers = ["Name", "Quantity", "Expires At", "Location"];
-    const rows = items.map((item) => [
-      `"${item.name}"`,
-      item.quantity,
-      item.expiresAt ? formatDateLocal(item.expiresAt) : "—",
-      item.location,
-    ]);
+    const isEditing = editingId === item.id;
 
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers, ...rows].map((e) => e.join(",")).join("\n");
+    if (isEditing) {
+      return (
+        <div key={item.id} className="compact-row editing">
+          <span className={`cell-badge ${badgeClass}`} />
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "inventory.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+          <input
+            className="name-input"
+            type="text"
+            value={editData.name}
+            onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+            placeholder="Item name"
+          />
 
-  const renderItem = (item) => {
-    const isExpiringSoon = isExpiringSoonLocal(item.expiresAt);
-    const isExpired = isExpiredLocal(item.expiresAt);
-    const isLowStock = item.quantity <= 1;
-    const locationColor = locationColors[item.location] || "#aaa";
+          {/* use dedicated classes so they don't get hidden by the mobile rule */}
+          <input
+            className="qty-input"
+            type="number"
+            min="0"
+            value={editData.quantity}
+            onChange={(e) =>
+              setEditData({ ...editData, quantity: e.target.value })
+            }
+          />
+          <input
+            className="date-input"
+            type="date"
+            value={editData.expiresAt}
+            onChange={(e) =>
+              setEditData({ ...editData, expiresAt: e.target.value })
+            }
+          />
+
+          <div className="actions">
+            <button
+              className="icon-btn"
+              title="Save"
+              onClick={() => handleEdit(item.id)}
+            >
+              ✔
+            </button>
+            <button className="icon-btn" title="Cancel" onClick={cancelEdit}>
+              ✖
+            </button>
+          </div>
+        </div>
+      );
+    }
 
     return (
-      <div
-        key={item.id}
-        className={`item-card ${isExpiringSoon ? "expiring" : ""}`}
-      >
-        {editingId === item.id ? (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleEdit(item.id);
-            }}
-            style={{ display: "flex", flexDirection: "column", width: "100%" }}
+      <div key={item.id} className="compact-row">
+        <span className={`cell-badge ${badgeClass}`} />
+        <div className="compact-name">{item.name}</div>
+        <div className="qty-col">{item.quantity ?? 0}</div>
+        <div className="date-col">
+          {item.expiresAt ? formatDateShort(item.expiresAt) : "—"}
+        </div>
+        <div className="actions">
+          <button
+            className="icon-btn"
+            title="Edit"
+            onClick={() => startEdit(item)}
           >
-            <input
-              type="text"
-              value={editData.name}
-              onChange={(e) =>
-                setEditData({ ...editData, name: e.target.value })
-              }
-              required
-            />
-            <input
-              type="number"
-              value={editData.quantity}
-              onChange={(e) =>
-                setEditData({ ...editData, quantity: e.target.value })
-              }
-              required
-            />
-            <input
-              type="date"
-              value={editData.expiresAt}
-              onChange={(e) =>
-                setEditData({ ...editData, expiresAt: e.target.value })
-              }
-            />
-            <div
-              style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}
-            >
-              <button type="submit">Save</button>
-              <button type="button" onClick={cancelEdit}>
-                Cancel
-              </button>
-            </div>
-          </form>
-        ) : (
-          <>
-            <div>
-              <span>
-                {item.name} {isLowStock ? "⚠️ Low Stock" : ""}
-                <span
-                  style={{
-                    marginLeft: "0.5rem",
-                    background: locationColor,
-                    borderRadius: "6px",
-                    padding: "2px 6px",
-                    fontSize: "0.75rem",
-                    color: "white",
-                  }}
-                >
-                  {item.location}
-                </span>
-              </span>
-              <p
-                style={{
-                  fontSize: "0.85rem",
-                  marginTop: "4px",
-                  color: isExpired ? "red" : "inherit",
-                }}
-              >
-                Qty: {item.quantity} | Expires:{" "}
-                {item.expiresAt
-                  ? `${formatDateLocal(item.expiresAt)} ${
-                      isExpired ? "❌ Expired" : isExpiringSoon ? "⚠️" : ""
-                    }`
-                  : "—"}
-              </p>
-            </div>
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button onClick={() => startEdit(item)}>Edit</button>
-              <button onClick={() => handleDelete(item.id)}>Delete</button>
-            </div>
-          </>
-        )}
+            ✎
+          </button>
+          <button
+            className="icon-btn"
+            title="Delete"
+            onClick={() => handleDelete(item.id)}
+          >
+            🗑
+          </button>
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="item-list">
-      {hasNotifications && (
-        <div
-          style={{
-            backgroundColor: "#fff3cd",
-            border: "1px solid #ffeeba",
-            color: "#856404",
-            padding: "1rem",
-            borderRadius: "8px",
-            marginBottom: "1rem",
-          }}
-        >
-          {expiredItems.length > 0 && (
-            <div>
-              ❌ {expiredItems.length} item{expiredItems.length > 1 ? "s" : ""}{" "}
-              expired
-            </div>
-          )}
-          {expiringSoonItems.length > 0 && (
-            <div>
-              ⚠️ {expiringSoonItems.length} item
-              {expiringSoonItems.length > 1 ? "s" : ""} expiring soon
-            </div>
-          )}
-        </div>
-      )}
-
-      <div style={{ marginBottom: "1rem" }}>
+    <div>
+      {/* Search + sort + export */}
+      <div className="toolbar">
         <input
+          className="search"
           type="text"
           placeholder="Search by name..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "0.5rem",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            fontSize: "1rem",
-          }}
         />
-
-        <button
-          onClick={exportToCSV}
-          style={{
-            margin: "1rem 0",
-            padding: "0.5rem 1rem",
-            backgroundColor: "#2196f3",
-            color: "#fff",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
         >
-          Export to CSV
+          <option value="expires">Soonest</option>
+          <option value="name">Name</option>
+          <option value="quantity">Qty ↑</option>
+        </select>
+        <button className="icon-btn small" onClick={exportToCSV}>
+          Export
         </button>
-
-        <div className="filters-container">
-          <label style={{ fontSize: "0.9rem" }}>
-            Sort by:{" "}
-            <select
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-              style={{ marginLeft: "0.5rem", padding: "0.25rem" }}
-            >
-              <option value="name">Name (A-Z)</option>
-              <option value="quantity">Quantity (Low to High)</option>
-              <option value="expires">Expiration (Soonest First)</option>
-            </select>
-          </label>
-
-          <label style={{ fontSize: "0.9rem" }}>
-            <input
-              type="checkbox"
-              checked={showExpired}
-              onChange={() => setShowExpired(!showExpired)}
-              style={{ marginRight: "0.5rem" }}
-            />
-            Show Expired Items
-          </label>
-
-          <label style={{ fontSize: "0.9rem" }}>
-            <input
-              type="checkbox"
-              checked={showExpiringSoon}
-              onChange={() => setShowExpiringSoon(!showExpiringSoon)}
-              style={{ marginRight: "0.5rem" }}
-            />
-            Show Expiring Soon
-          </label>
-
-          <label style={{ fontSize: "0.9rem" }}>
-            <input
-              type="checkbox"
-              checked={showGood}
-              onChange={() => setShowGood(!showGood)}
-              style={{ marginRight: "0.5rem" }}
-            />
-            Show Good Items
-          </label>
-        </div>
       </div>
 
+      {/* Clickable legend (these ARE the filters) */}
+      <div className="legend">
+        <label className="legend-toggle">
+          <input
+            className="chk-red"
+            type="checkbox"
+            checked={showExpired}
+            onChange={() => setShowExpired((v) => !v)}
+          />
+          <span>Expired</span>
+        </label>
+        <label className="legend-toggle">
+          <input
+            className="chk-orange"
+            type="checkbox"
+            checked={showExpiringSoon}
+            onChange={() => setShowExpiringSoon((v) => !v)}
+          />
+          <span>Expiring Soon</span>
+        </label>
+        <label className="legend-toggle">
+          <input
+            className="chk-green"
+            type="checkbox"
+            checked={showGood}
+            onChange={() => setShowGood((v) => !v)}
+          />
+          <span>Good</span>
+        </label>
+      </div>
+
+      {/* Sectioned, bordered groups */}
       {showExpired && expiredItems.length > 0 && (
-        <div
-          style={{
-            border: "2px solid red",
-            padding: "1rem",
-            borderRadius: "8px",
-            marginBottom: "1rem",
-          }}
-        >
-          <h3 style={{ color: "red", marginBottom: "0.5rem" }}>Expired</h3>
-          {expiredItems.map(renderItem)}
+        <div className="section-box section-expired">
+          <div className="section-title" style={{ color: "#e53935" }}>
+            Expired
+          </div>
+          {expiredItems.map(Row)}
         </div>
       )}
-
-      {showExpiringSoon && expiringSoonItems.length > 0 && (
-        <div
-          style={{
-            border: "2px solid orange",
-            padding: "1rem",
-            borderRadius: "8px",
-            marginBottom: "1rem",
-          }}
-        >
-          <h3 style={{ color: "orange", marginBottom: "0.5rem" }}>
+      {showExpiringSoon && soonItems.length > 0 && (
+        <div className="section-box section-soon">
+          <div className="section-title" style={{ color: "#fb8c00" }}>
             Expiring Soon
-          </h3>
-          {expiringSoonItems.map(renderItem)}
+          </div>
+          {soonItems.map(Row)}
         </div>
       )}
-
       {showGood && goodItems.length > 0 && (
-        <div
-          style={{
-            border: "2px solid green",
-            padding: "1rem",
-            borderRadius: "8px",
-            marginBottom: "1rem",
-          }}
-        >
-          <h3 style={{ color: "green", marginBottom: "0.5rem" }}>Good</h3>
-          {goodItems.map(renderItem)}
+        <div className="section-box section-good">
+          <div className="section-title" style={{ color: "#43a047" }}>
+            Good
+          </div>
+          {goodItems.map(Row)}
         </div>
       )}
     </div>
