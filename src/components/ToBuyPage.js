@@ -4,7 +4,7 @@ import EditableToBuyList from "./EditableToBuyList";
 export default function ToBuyPage() {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState("1");
   const [location, setLocation] = useState(""); // Start with an empty value for location
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function ToBuyPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: newItem,
-        quantity,
+        quantity: Math.max(1, parseInt(quantity || "1", 10)),
         userId: user.id,
         location: location || "Unspecified", // If location is empty, set it as "Unspecified"
       }),
@@ -57,7 +57,7 @@ export default function ToBuyPage() {
       const item = await res.json();
       setItems((prev) => [...prev, item]);
       setNewItem("");
-      setQuantity(1);
+      setQuantity("1");
       setLocation(""); // Reset to default value (empty)
     } else {
       alert("Failed to add item");
@@ -104,14 +104,24 @@ export default function ToBuyPage() {
           />
           <input
             type="number"
+            inputMode="numeric"
             min="1"
+            step="1"
             placeholder="Qty"
             value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "") return setQuantity("");
+              if (/^\d+$/.test(v)) setQuantity(v);
+            }}
+            onBlur={() => {
+              if (quantity === "" || Number(quantity) < 1) setQuantity("1");
+            }}
             style={{
-              width: "60px", // Reduced width for the quantity input
-              padding: "0.4rem 0.6rem", // Same reduced padding
+              width: "60px",
+              padding: "0.4rem 0.6rem",
               fontSize: "1rem",
+              textAlign: "center",
             }}
             required
           />

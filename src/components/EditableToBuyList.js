@@ -3,7 +3,7 @@ import { useState } from "react";
 export default function EditableToBuyList({ items, setItems }) {
   const [editingId, setEditingId] = useState(null);
   const [editedName, setEditedName] = useState("");
-  const [editedQty, setEditedQty] = useState(1);
+  const [editedQty, setEditedQty] = useState("1");
 
   const handleEditToggle = (item) => {
     if (editingId === item.id) {
@@ -11,7 +11,7 @@ export default function EditableToBuyList({ items, setItems }) {
     } else {
       setEditingId(item.id);
       setEditedName(item.name);
-      setEditedQty(item.quantity || 1);
+      setEditedQty(String(item.quantity ?? 1));
     }
   };
 
@@ -28,7 +28,7 @@ export default function EditableToBuyList({ items, setItems }) {
       body: JSON.stringify({
         id,
         name: editedName,
-        quantity: Number(editedQty),
+        quantity: Math.max(1, parseInt(editedQty || "1", 10)),
         userId: user.id,
       }),
     });
@@ -125,11 +125,21 @@ export default function EditableToBuyList({ items, setItems }) {
                 />
                 <input
                   type="number"
+                  inputMode="numeric"
                   min="1"
+                  step="1"
                   value={editedQty}
-                  onChange={(e) => setEditedQty(e.target.value)}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === "") return setEditedQty("");
+                    if (/^\d+$/.test(v)) setEditedQty(v);
+                  }}
+                  onBlur={() => {
+                    if (editedQty === "" || Number(editedQty) < 1)
+                      setEditedQty("1");
+                  }}
                   style={{
-                    width: "40px", // 👈 shortened
+                    width: "40px",
                     padding: "0.3rem",
                     textAlign: "center",
                   }}
