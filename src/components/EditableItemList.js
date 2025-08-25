@@ -1,35 +1,58 @@
 import { useState } from "react";
 
+function splitYMD(dateStr) {
+  if (!dateStr) return null;
+  const [y, m, d] = dateStr.split("T")[0].split("-").map(Number);
+  return { y, m, d };
+}
+
+function dateFromYMD_UTC(dateStr) {
+  const ymd = splitYMD(dateStr);
+  if (!ymd) return null;
+  const { y, m, d } = ymd;
+  return new Date(Date.UTC(y, m - 1, d)); // midnight UTC
+}
+
+function formatYMDShort(dateStr) {
+  const ymd = splitYMD(dateStr);
+  if (!ymd) return "—";
+  const { y, m, d } = ymd;
+  const thisYear = new Date().getFullYear();
+  return y === thisYear ? `${m}/${d}` : `${m}/${d}/${String(y).slice(-2)}`;
+}
+
 function formatDateShort(dateStr) {
-  if (!dateStr) return "—";
-  const d = new Date(dateStr);
-  const y = new Date().getFullYear();
-  return d.getFullYear() === y
-    ? `${d.getMonth() + 1}/${d.getDate()}`
-    : `${d.getMonth() + 1}/${d.getDate()}/${String(d.getFullYear()).slice(-2)}`;
+  return formatYMDShort(dateStr);
 }
 
 function formatDateLocal(dateStr) {
   if (!dateStr) return "—";
-  const [y, m, d] = dateStr.split("T")[0].split("-");
-  return new Date(y, m - 1, d).toLocaleDateString();
+  const ymd = splitYMD(dateStr);
+  if (!ymd) return "—";
+  const { y, m, d } = ymd;
+  // Build as UTC so toLocaleDateString won't shift the day
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString();
 }
+
 function isExpiringSoonLocal(dateStr) {
   if (!dateStr) return false;
-  const [y, m, d] = dateStr.split("T")[0].split("-");
-  const expires = new Date(y, m - 1, d);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const diff = (expires - today) / 86400000;
-  return diff >= 0 && diff <= 3;
+  const expires = dateFromYMD_UTC(dateStr);
+  const now = new Date();
+  const todayUTC = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  );
+  const diffDays = (expires - todayUTC) / 86400000;
+  return diffDays >= 0 && diffDays <= 3;
 }
+
 function isExpiredLocal(dateStr) {
   if (!dateStr) return false;
-  const [y, m, d] = dateStr.split("T")[0].split("-");
-  const expires = new Date(y, m - 1, d);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return expires < today;
+  const expires = dateFromYMD_UTC(dateStr);
+  const now = new Date();
+  const todayUTC = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  );
+  return expires < todayUTC;
 }
 
 export default function EditableItemList({ items, setItems }) {
@@ -50,6 +73,7 @@ export default function EditableItemList({ items, setItems }) {
     setEditData({
       name: item.name,
       quantity: String(item.quantity ?? ""),
+      // keep YYYY-MM-DD (no TZ)
       expiresAt: item.expiresAt ? item.expiresAt.split("T")[0] : "",
     });
   };
@@ -106,18 +130,20 @@ export default function EditableItemList({ items, setItems }) {
   const filtered = items.filter((i) =>
     i.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
   const sortItems = (arr) => {
     const copy = [...arr];
     if (sortOption === "name")
       return copy.sort((a, b) => a.name.localeCompare(b.name));
     if (sortOption === "quantity")
       return copy.sort((a, b) => (a.quantity || 0) - (b.quantity || 0));
+    // expires (soonest first) — use UTC-safe constructor
     return copy.sort((a, b) => {
       const ax = a.expiresAt
-        ? new Date(a.expiresAt)
+        ? dateFromYMD_UTC(a.expiresAt)
         : new Date(8640000000000000);
       const bx = b.expiresAt
-        ? new Date(b.expiresAt)
+        ? dateFromYMD_UTC(b.expiresAt)
         : new Date(8640000000000000);
       return ax - bx;
     });
@@ -136,8 +162,6 @@ export default function EditableItemList({ items, setItems }) {
       (i) => !isExpiredLocal(i.expiresAt) && !isExpiringSoonLocal(i.expiresAt)
     )
   );
-
-  // inside EditableItemList
 
   const Row = (item) => {
     const expired = isExpiredLocal(item.expiresAt);
@@ -163,7 +187,6 @@ export default function EditableItemList({ items, setItems }) {
             placeholder="Item name"
           />
 
-          {/* use dedicated classes so they don't get hidden by the mobile rule */}
           <input
             className="qty-input"
             type="number"
@@ -250,7 +273,7 @@ export default function EditableItemList({ items, setItems }) {
         </button>
       </div>
 
-      {/* Clickable legend (these ARE the filters) */}
+      {/* Clickable legend (filters) */}
       <div className="legend">
         <label className="legend-toggle">
           <input
