@@ -1,5 +1,14 @@
 import { useState } from "react";
 
+/** Safe localStorage reader so mobile/PWA quirks don’t break things */
+function getUserSafe() {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    return null;
+  }
+}
+
 export default function EditableToBuyList({ items, setItems }) {
   const [editingId, setEditingId] = useState(null);
   const [editedName, setEditedName] = useState("");
@@ -16,7 +25,7 @@ export default function EditableToBuyList({ items, setItems }) {
   };
 
   const handleSave = async (id) => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = getUserSafe();
     if (!user?.id) {
       alert("You must be logged in to edit items.");
       return;
@@ -37,6 +46,8 @@ export default function EditableToBuyList({ items, setItems }) {
       const updated = await res.json();
       setItems(items.map((item) => (item.id === id ? updated : item)));
       setEditingId(null);
+    } else {
+      alert("Failed to save changes");
     }
   };
 
@@ -44,7 +55,7 @@ export default function EditableToBuyList({ items, setItems }) {
     const confirmDelete = window.confirm("Remove this from your list?");
     if (!confirmDelete) return;
 
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = getUserSafe();
     if (!user?.id) {
       alert("You must be logged in to delete items.");
       return;
@@ -67,7 +78,7 @@ export default function EditableToBuyList({ items, setItems }) {
     const confirmMove = window.confirm(`Move "${item.name}" to inventory?`);
     if (!confirmMove) return;
 
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = getUserSafe();
     if (!user?.id) {
       alert("You must be logged in to move items.");
       return;
@@ -102,7 +113,7 @@ export default function EditableToBuyList({ items, setItems }) {
             display: "flex",
             flexWrap: "wrap",
             alignItems: "center",
-            justifyContent: "space-between", // ✅ helps position buttons better
+            justifyContent: "space-between",
             gap: "0.5rem",
             width: "100%",
           }}
@@ -189,7 +200,10 @@ export default function EditableToBuyList({ items, setItems }) {
                 </div>
               </div>
 
-              <div className="btn-group-inline">
+              <div
+                className="btn-group-inline"
+                style={{ display: "flex", gap: "0.3rem" }}
+              >
                 <button
                   onClick={() => handleEditToggle(item)}
                   className="edit-btn"

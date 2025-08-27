@@ -1,31 +1,43 @@
 import { useEffect, useState } from "react";
 import EditableToBuyList from "./EditableToBuyList";
 
+/** Safe localStorage reader so mobile/PWA quirks don’t break things */
+function getUserSafe() {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    return null;
+  }
+}
+
 export default function ToBuyPage() {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
   const [quantity, setQuantity] = useState("1");
-  const [location, setLocation] = useState(""); // Start with an empty value for location
+  const [location, setLocation] = useState(""); // empty means "choose"
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchItems = async () => {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (!user) {
-        alert("You must be logged in");
+      const user = getUserSafe();
+
+      // If not logged in in THIS storage sandbox (e.g., installed app), show empty state
+      if (!user?.id) {
+        setItems([]);
+        setLoading(false);
         return;
       }
 
       try {
         const res = await fetch(`/api/to-buy?userId=${user.id}`);
+        if (!res.ok) throw new Error("Failed to fetch to-buy items");
         const data = await res.json();
-        if (Array.isArray(data)) {
-          setItems(data);
-        } else {
-          console.error("Expected array, got:", data);
-          setItems([]);
-        }
+        setItems(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch to-buy items:", err);
+        setItems([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -36,36 +48,50 @@ export default function ToBuyPage() {
     e.preventDefault();
     if (!newItem.trim()) return;
 
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) {
+    const user = getUserSafe();
+    if (!user?.id) {
+      // Important: the installed PWA has its own storage; make sure you log in there once.
       window.location.href = "/login";
       return;
     }
 
-    const res = await fetch("/api/to-buy", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: newItem,
-        quantity: Math.max(1, parseInt(quantity || "1", 10)),
-        userId: user.id,
-        location: location || "Unspecified", // If location is empty, set it as "Unspecified"
-      }),
-    });
+    const qty = Math.max(1, parseInt(quantity || "1", 10));
 
-    if (res.ok) {
+    try {
+      const res = await fetch("/api/to-buy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newItem,
+          quantity: qty,
+          userId: user.id,
+          location: location || "Unspecified",
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to add item");
+
       const item = await res.json();
       setItems((prev) => [...prev, item]);
       setNewItem("");
       setQuantity("1");
-      setLocation(""); // Reset to default value (empty)
-    } else {
+      setLocation("");
+    } catch (err) {
+      console.error(err);
       alert("Failed to add item");
     }
   };
 
   return (
     <div className="container">
+      {/* Optional tiny debug (remove later)
+      <div style={{fontSize:12,opacity:.7,marginBottom:8}}>
+        origin: {typeof window !== 'undefined' ? window.location.origin : ''}
+        <br/>
+        user?: {typeof window !== 'undefined' ? localStorage.getItem('user') : 'n/a'}
+      </div>
+      */}
+
       <h1>To Buy List</h1>
       <p style={{ marginBottom: "1rem", fontSize: "0.9rem", color: "#666" }}>
         Add items you plan to buy. You can set expiration dates after purchase.
@@ -96,10 +122,10 @@ export default function ToBuyPage() {
             onChange={(e) => setNewItem(e.target.value)}
             required
             style={{
-              flex: 3, // Name still takes up more space
-              padding: "0.4rem 0.6rem", // Reduced padding for a skinnier look
+              flex: 3,
+              padding: "0.4rem 0.6rem",
               fontSize: "1rem",
-              minWidth: "150px", // Minimum width for readability
+              minWidth: "150px",
             }}
           />
           <input
@@ -132,7 +158,7 @@ export default function ToBuyPage() {
           onChange={(e) => setLocation(e.target.value)}
           style={{
             minWidth: "100px",
-            padding: "0.4rem 0.6rem", // Reduced padding for consistency
+            padding: "0.4rem 0.6rem",
           }}
         >
           <option value="" disabled>
@@ -148,7 +174,9 @@ export default function ToBuyPage() {
         <button type="submit">➕</button>
       </form>
 
-      {items.length === 0 ? (
+      {loading ? (
+        <p>Loading…</p>
+      ) : items.length === 0 ? (
         <p>No items in your list.</p>
       ) : (
         <EditableToBuyList items={items} setItems={setItems} />
