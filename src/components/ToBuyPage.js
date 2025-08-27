@@ -9,14 +9,7 @@ export default function ToBuyPage() {
 
   useEffect(() => {
     const fetchItems = async () => {
-      function getUserSafe() {
-        try {
-          return JSON.parse(localStorage.getItem("user") || "null");
-        } catch {
-          return null;
-        }
-      }
-
+      const user = JSON.parse(localStorage.getItem("user"));
       if (!user) {
         alert("You must be logged in");
         return;
@@ -43,7 +36,7 @@ export default function ToBuyPage() {
     e.preventDefault();
     if (!newItem.trim()) return;
 
-    const user = getUserSafe();
+    const user = JSON.parse(localStorage.getItem("user"));
     if (!user) {
       window.location.href = "/login";
       return;

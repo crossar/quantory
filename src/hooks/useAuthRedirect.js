@@ -1,21 +1,13 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 
-function getUserSafe() {
-  try {
-    return JSON.parse(localStorage.getItem("user") || "null");
-  } catch {
-    return null;
-  }
-}
-
 export default function useAuthRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    const user = getUserSafe();
+    const user = JSON.parse(localStorage.getItem("user"));
     if (!user) {
-      router.replace("/login");
+      router.replace("/login"); // redirect to login if not found
     }
-  }, [router]);
+ }, [router]);
 }
