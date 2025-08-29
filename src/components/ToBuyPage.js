@@ -20,26 +20,35 @@ export default function ToBuyPage() {
   useEffect(() => {
     const fetchItems = async () => {
       const user = getUserSafe();
-
-      // If not logged in in THIS storage sandbox (e.g., installed app), show empty state
-      if (!user?.id) {
+      if (!user) {
         setItems([]);
-        setLoading(false);
         return;
       }
 
       try {
-        const res = await fetch(`/api/to-buy?userId=${user.id}`);
-        if (!res.ok) throw new Error("Failed to fetch to-buy items");
+        const url = `/api/to-buy?userId=${user.id}&t=${Date.now()}`; // 👈 cache-buster
+        console.log("[ToBuy] GET", url, "user=", user);
+
+        const res = await fetch(url, { cache: "no-store" }); // 👈 skip cache
+        if (!res.ok) {
+          const text = await res.text().catch(() => "(no body)");
+          console.error("[ToBuy] GET failed", res.status, res.statusText, text);
+          throw new Error("Failed to fetch to-buy items");
+        }
+
         const data = await res.json();
+        console.log(
+          "[ToBuy] data len:",
+          Array.isArray(data) ? data.length : "not-array",
+          data
+        );
         setItems(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch to-buy items:", err);
-        setItems([]);
-      } finally {
-        setLoading(false);
       }
     };
+
+    console.log("[ToBuy] user in PWA =", user);
 
     fetchItems();
   }, []);
