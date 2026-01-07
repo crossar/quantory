@@ -2,7 +2,12 @@ import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export default async function handler(req, res) {
+  res.setHeader("X-Route", "pages-api-login-v1");
+
   console.log("Using DATABASE_URL:", process.env.DATABASE_URL);
+
+  console.log("LOGIN METHOD:", req.method);
+
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
 
