@@ -4,7 +4,7 @@ import { signIn, useSession } from "next-auth/react";
 
 export default function SignupPage() {
   const [form, setForm] = useState({
-    email: "",
+    username: "",
     password: "",
     firstName: "",
     lastName: "",
@@ -45,7 +45,7 @@ export default function SignupPage() {
       }
 
       const result = await signIn("credentials", {
-        email: form.email.trim().toLowerCase(),
+        username: form.username.trim().toLowerCase(),
         password: form.password,
         redirect: false,
       });
@@ -107,10 +107,9 @@ export default function SignupPage() {
         required
       />
       <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        value={form.email}
+        name="username"
+        placeholder="Username"
+        value={form.username}
         onChange={handleChange}
         required
       />

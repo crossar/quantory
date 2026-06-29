@@ -5,7 +5,7 @@ import { signIn, useSession } from "next-auth/react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ username: "", password: "" });
   const [status, setStatus] = useState({ type: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const { status: authStatus } = useSession();
@@ -28,13 +28,13 @@ export default function LoginPage() {
 
     try {
       const result = await signIn("credentials", {
-        email: form.email.trim().toLowerCase(),
+        username: form.username.trim().toLowerCase(),
         password: form.password,
         redirect: false,
       });
 
       if (result?.error) {
-        setStatus({ type: "error", message: "Invalid email or password" });
+        setStatus({ type: "error", message: "Invalid username or password" });
         return;
       }
 
@@ -71,11 +71,10 @@ export default function LoginPage() {
         </div>
       ) : null}
       <input
-        name="email"
-        type="email"
-        value={form.email}
+        name="username"
+        value={form.username}
         onChange={handleChange}
-        placeholder="Email"
+        placeholder="Username"
       />
       <input
         name="password"

@@ -6,6 +6,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/lib/prisma";
 
+function normalizeUsername(username) {
+  return username?.trim().toLowerCase();
+}
+
 function normalizeEmail(email) {
   return email?.trim().toLowerCase();
 }
@@ -25,38 +29,40 @@ function splitName(name) {
 
 const providers = [
   CredentialsProvider({
-    name: "Email and Password",
+    name: "Username and Password",
     credentials: {
-      email: { label: "Email", type: "email" },
+      username: { label: "Username", type: "text" },
       password: { label: "Password", type: "password" },
     },
     async authorize(credentials) {
-      const email = normalizeEmail(credentials?.email);
+      const username = normalizeUsername(credentials?.username);
       const password = credentials?.password || "";
 
-      if (!email || !password) {
-        throw new Error("Email and password are required");
+      if (!username || !password) {
+        throw new Error("Username and password are required");
       }
 
-      const user = await prisma.user.findUnique({ where: { email } });
+      const user = await prisma.user.findUnique({ where: { username } });
 
       if (!user?.passwordHash) {
-        throw new Error("Invalid email or password");
+        throw new Error("Invalid username or password");
       }
 
       const matches = await bcrypt.compare(password, user.passwordHash);
       if (!matches) {
-        throw new Error("Invalid email or password");
+        throw new Error("Invalid username or password");
       }
 
       return {
         id: String(user.id),
+        username: user.username,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
         name:
           user.name ||
           [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+          user.username ||
           user.email,
         image: user.image,
       };
@@ -124,6 +130,10 @@ export const authOptions = {
         token.userId = userId;
       }
 
+      if (user?.username) {
+        token.username = user.username;
+      }
+
       if (user?.email) {
         token.email = user.email;
       }
@@ -144,20 +154,30 @@ export const authOptions = {
         token.picture = user.image;
       }
 
-      if ((!token.firstName && !token.lastName) || !token.name) {
+      if (
+        !token.username ||
+        (!token.firstName && !token.lastName) ||
+        !token.name
+      ) {
+        const username = normalizeUsername(token.username);
         const email = normalizeEmail(token.email);
-        if (email) {
-          const dbUser = await prisma.user.findUnique({ where: { email } });
-          if (dbUser) {
-            token.userId = dbUser.id;
-            token.firstName = dbUser.firstName;
-            token.lastName = dbUser.lastName;
-            token.name =
-              dbUser.name ||
-              [dbUser.firstName, dbUser.lastName].filter(Boolean).join(" ") ||
-              dbUser.email;
-            token.picture = dbUser.image;
-          }
+        const dbUser = username
+          ? await prisma.user.findUnique({ where: { username } })
+          : email
+            ? await prisma.user.findUnique({ where: { email } })
+            : null;
+
+        if (dbUser) {
+          token.userId = dbUser.id;
+          token.username = dbUser.username;
+          token.firstName = dbUser.firstName;
+          token.lastName = dbUser.lastName;
+          token.name =
+            dbUser.name ||
+            [dbUser.firstName, dbUser.lastName].filter(Boolean).join(" ") ||
+            dbUser.username ||
+            dbUser.email;
+          token.picture = dbUser.image;
         }
       }
 
@@ -166,9 +186,13 @@ export const authOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = String(token.userId || "");
+        session.user.username = token.username || null;
         session.user.email = token.email || session.user.email || null;
         session.user.name =
-          token.name || session.user.name || session.user.email;
+          token.name ||
+          session.user.name ||
+          token.username ||
+          session.user.email;
         session.user.firstName = token.firstName || null;
         session.user.lastName = token.lastName || null;
         session.user.image = token.picture || session.user.image || null;

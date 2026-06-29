@@ -1,8 +1,15 @@
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-function normalizeEmail(email) {
-  return email?.trim().toLowerCase();
+function normalizeUsername(username) {
+  return username?.trim().toLowerCase();
+}
+
+function isDatabaseConnectionError(error) {
+  const message = error instanceof Error ? error.message : String(error);
+  return /Error querying the database|Can't reach database server|tenant\/user/i.test(
+    message,
+  );
 }
 
 export default async function handler(req, res) {
@@ -11,21 +18,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { email, password, firstName, lastName } = req.body;
-    const normalizedEmail = normalizeEmail(email);
+    const { username, password, firstName, lastName } = req.body;
+    const normalizedUsername = normalizeUsername(username);
 
-    if (!normalizedEmail || !password || !firstName || !lastName) {
+    if (!normalizedUsername || !password || !firstName || !lastName) {
       return res.status(400).json({ error: "Missing fields" });
     }
 
     const existingUser = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
+      where: { username: normalizedUsername },
     });
 
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ error: "An account with that email already exists" });
+      return res.status(400).json({
+        error: "An account with that username already exists",
+      });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -33,7 +40,7 @@ export default async function handler(req, res) {
 
     const newUser = await prisma.user.create({
       data: {
-        email: normalizedEmail,
+        username: normalizedUsername,
         passwordHash,
         firstName: firstName.trim(),
         lastName: lastName.trim(),
@@ -44,7 +51,7 @@ export default async function handler(req, res) {
     return res.status(201).json({
       user: {
         id: newUser.id,
-        email: newUser.email,
+        username: newUser.username,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
         name: newUser.name,
@@ -52,6 +59,14 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error("Signup error:", error);
+
+    if (isDatabaseConnectionError(error)) {
+      return res.status(503).json({
+        error:
+          "Database unavailable. Signup cannot complete until the database connection is fixed.",
+      });
+    }
+
     res.status(500).json({ error: "Internal Server Error" });
   }
 }

@@ -4,9 +4,6 @@ import runtimeCaching from "next-pwa/cache.js";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: {
-    esmExternals: false,
-  },
   ...nextPwa({
     dest: "public",
     disable: process.env.NODE_ENV === "development",

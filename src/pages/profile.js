@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { useUser } from "@/components/UserContext";
 import useAuthRedirect from "@/hooks/useAuthRedirect";
@@ -9,20 +10,22 @@ export default function ProfilePage() {
   useAuthRedirect();
 
   useEffect(() => {
-    if (!user?.email) {
+    if (!user?.id) {
       return;
     }
 
-    const key = `avatar:${user.email}`;
+    const key = `avatar:${user.id}`;
     const savedAvatar = localStorage.getItem(key);
     if (savedAvatar) setAvatar(savedAvatar);
-  }, [user?.email]);
+  }, [user?.id]);
 
   const initials = useMemo(() => {
     if (!user) return "";
     const a = (user.firstName || "").trim().charAt(0);
     const b = (user.lastName || "").trim().charAt(0);
-    return (a + b || (user.email || "U").slice(0, 2)).toUpperCase();
+    return (
+      a + b || (user.username || user.email || "U").slice(0, 2)
+    ).toUpperCase();
   }, [user]);
 
   const handleAvatarChange = (e) => {
@@ -32,7 +35,7 @@ export default function ProfilePage() {
     reader.onload = () => {
       const dataUrl = reader.result;
       setAvatar(dataUrl);
-      localStorage.setItem(`avatar:${user.email}`, dataUrl);
+      localStorage.setItem(`avatar:${user.id}`, dataUrl);
     };
     reader.readAsDataURL(file);
   };
@@ -51,7 +54,13 @@ export default function ProfilePage() {
       <div className="profile-simple-card">
         <div className="profile-photo">
           {avatar ? (
-            <img src={avatar} alt="Profile" />
+            <Image
+              src={avatar}
+              alt="Profile"
+              width={96}
+              height={96}
+              unoptimized
+            />
           ) : (
             <span aria-hidden="true">{initials}</span>
           )}
@@ -68,7 +77,9 @@ export default function ProfilePage() {
 
         <div className="profile-simple-info">
           <div className="profile-name">{user.name || "Unnamed user"}</div>
-          <div className="profile-username">{user.email || "No email"}</div>
+          <div className="profile-username">
+            {user.username ? `@${user.username}` : user.email || "No email"}
+          </div>
         </div>
 
         <button className="logout-button" onClick={handleLogout}>

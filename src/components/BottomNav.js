@@ -15,7 +15,11 @@ export default function BottomNav() {
   };
 
   const greetingName =
-    user?.firstName || user?.name?.split(" ")[0] || user?.email || "";
+    user?.firstName ||
+    user?.name?.split(" ")[0] ||
+    user?.username ||
+    user?.email ||
+    "";
 
   const links = [
     { href: "/", label: "🏠 Home" },
