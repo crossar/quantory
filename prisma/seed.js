@@ -1,4 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient } = require("../src/generated/prisma");
 const bcrypt = require("bcryptjs");
 
 const prisma = new PrismaClient();
@@ -25,14 +25,31 @@ async function main() {
     },
   });
 
-  await prisma.item.createMany({
-    data: [
-      { name: "Milk", location: "FRIDGE", quantity: 1, userId: user.id },
-      { name: "Peas", location: "FREEZER", quantity: 2, userId: user.id },
-      { name: "Cereal", location: "PANTRY", quantity: 3, userId: user.id },
-    ],
-    skipDuplicates: true,
-  });
+  const items = [
+    { name: "Milk", location: "FRIDGE", quantity: 1, userId: user.id },
+    { name: "Peas", location: "FREEZER", quantity: 2, userId: user.id },
+    { name: "Cereal", location: "PANTRY", quantity: 3, userId: user.id },
+  ];
+
+  for (const item of items) {
+    const existing = await prisma.item.findFirst({
+      where: {
+        userId: item.userId,
+        name: item.name,
+        location: item.location,
+      },
+    });
+
+    if (existing) {
+      await prisma.item.update({
+        where: { id: existing.id },
+        data: { quantity: item.quantity },
+      });
+      continue;
+    }
+
+    await prisma.item.create({ data: item });
+  }
 }
 
 main()
