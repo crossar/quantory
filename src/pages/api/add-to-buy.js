@@ -16,14 +16,25 @@ export default async function handler(req, res) {
     return res.status(200).json(item);
   } catch (error) {
     console.error("Add-to-buy DB error:", error.message);
+
+    if (process.env.NODE_ENV !== "production") {
+      const fallbackItem = await createFallbackToBuyItem({
+        userId,
+        name,
+        quantity: quantity || 1,
+        location: location || "Unspecified",
+      });
+
+      return res.status(200).json({
+        ...fallbackItem,
+        storage: "fallback",
+        warning:
+          "Database unavailable. Item is stored only in temporary memory.",
+      });
+    }
+
+    return res.status(503).json({
+      error: "Database unavailable. Item was not saved.",
+    });
   }
-
-  const fallbackItem = await createFallbackToBuyItem({
-    userId,
-    name,
-    quantity: quantity || 1,
-    location: location || "Unspecified",
-  });
-
-  res.status(200).json(fallbackItem);
 }

@@ -64,7 +64,7 @@ export default async function handler(req, res) {
 
       const items = await prisma.toBuyItem.findMany({
         where: { userId },
-        orderBy: { createdAt: "desc" },
+        orderBy: { id: "desc" },
       });
 
       console.log("[API /to-buy GET] found items:", items.length);

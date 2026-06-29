@@ -26,15 +26,26 @@ export default async function handler(req, res) {
     return res.status(200).json(item);
   } catch (error) {
     console.error("Add-item DB error:", error.message);
+
+    if (process.env.NODE_ENV !== "production") {
+      const fallbackItem = await createFallbackItem({
+        userId,
+        name,
+        location: location.toUpperCase(),
+        quantity,
+        expiresAt,
+      });
+
+      return res.status(200).json({
+        ...fallbackItem,
+        storage: "fallback",
+        warning:
+          "Database unavailable. Item is stored only in temporary memory.",
+      });
+    }
+
+    return res.status(503).json({
+      error: "Database unavailable. Item was not saved.",
+    });
   }
-
-  const fallbackItem = await createFallbackItem({
-    userId,
-    name,
-    location: location.toUpperCase(),
-    quantity,
-    expiresAt,
-  });
-
-  res.status(200).json(fallbackItem);
 }

@@ -51,7 +51,7 @@ export default function ToBuyPage() {
         console.log(
           "[ToBuy] data len:",
           Array.isArray(data) ? data.length : "not-array",
-          data
+          data,
         );
         setItems(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -99,6 +99,7 @@ export default function ToBuyPage() {
       }
 
       const item = await res.json();
+      setError(item.warning || null);
       setItems((prev) => [...prev, item]);
       setNewItem("");
       setQuantity("1");
