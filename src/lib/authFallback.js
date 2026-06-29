@@ -1,20 +1,16 @@
 import bcrypt from "bcryptjs";
-
-const fallbackUsers = (globalThis.__homeventoryFallbackUsers ??= new Map());
-const userIdMap = (globalThis.__homeventoryUserIds ??= new Map());
-
-let nextUserId = 1000;
+import { readFallbackStore, updateFallbackStore } from "@/lib/fallbackStore";
 
 function normalizeUsername(username) {
   return username?.trim().toLowerCase();
 }
 
-function getUserIdForUsername(username) {
-  const normalized = normalizeUsername(username);
-  if (!userIdMap.has(normalized)) {
-    userIdMap.set(normalized, nextUserId++);
-  }
-  return userIdMap.get(normalized);
+export async function getFallbackUserByUsername(username) {
+  const normalizedUsername = normalizeUsername(username);
+  const store = await readFallbackStore();
+  return (
+    store.users.find((user) => user.username === normalizedUsername) || null
+  );
 }
 
 export async function createFallbackUser({
@@ -24,19 +20,36 @@ export async function createFallbackUser({
   lastName,
 }) {
   const normalizedUsername = normalizeUsername(username);
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const id = getUserIdForUsername(normalizedUsername);
+  const existingUser = await getFallbackUserByUsername(normalizedUsername);
 
-  fallbackUsers.set(normalizedUsername, {
-    id,
-    username: normalizedUsername,
-    password: hashedPassword,
-    firstName,
-    lastName,
+  if (existingUser) {
+    return {
+      id: existingUser.id,
+      username: existingUser.username,
+      firstName: existingUser.firstName,
+      lastName: existingUser.lastName,
+    };
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  let createdUser;
+
+  await updateFallbackStore((store) => {
+    const id = store.counters.userId++;
+    createdUser = {
+      id,
+      username: normalizedUsername,
+      password: hashedPassword,
+      firstName,
+      lastName,
+    };
+
+    store.users.push(createdUser);
+    return store;
   });
 
   return {
-    id,
+    id: createdUser.id,
     username: normalizedUsername,
     firstName,
     lastName,
@@ -45,7 +58,10 @@ export async function createFallbackUser({
 
 export async function verifyFallbackUser(username, password) {
   const normalizedUsername = normalizeUsername(username);
-  const user = fallbackUsers.get(normalizedUsername);
+  const store = await readFallbackStore();
+  const user = store.users.find(
+    (entry) => entry.username === normalizedUsername,
+  );
 
   if (!user) {
     return null;

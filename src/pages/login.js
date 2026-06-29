@@ -1,12 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useUser } from "../components/UserContext";
+import { signIn, useSession } from "next-auth/react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ username: "", password: "" });
-  const { setUser } = useUser();
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [status, setStatus] = useState({ type: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const { status: authStatus } = useSession();
+  const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
+
+  useEffect(() => {
+    if (authStatus === "authenticated") {
+      router.replace("/");
+    }
+  }, [authStatus, router]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -14,32 +23,59 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setStatus({ type: "", message: "" });
+    setSubmitting(true);
 
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const result = await signIn("credentials", {
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+        redirect: false,
+      });
 
-    const data = await res.json().catch(() => ({}));
+      if (result?.error) {
+        setStatus({ type: "error", message: "Invalid email or password" });
+        return;
+      }
 
-    if (res.ok) {
-      localStorage.setItem("user", JSON.stringify(data.user));
-      setUser(data.user);
       router.push("/");
-    } else {
-      alert(data.error || "Login failed");
+    } catch {
+      setStatus({ type: "error", message: "Login failed" });
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  const handleGoogleSignIn = async () => {
+    await signIn("google", { callbackUrl: "/" });
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <h2>Login</h2>
+      {status.message ? (
+        <div
+          style={{
+            marginBottom: "1rem",
+            padding: "0.75rem 1rem",
+            borderRadius: 10,
+            background: status.type === "error" ? "#fdecea" : "#edf7ed",
+            color: status.type === "error" ? "#9b1c1c" : "#1f5f3a",
+            border:
+              status.type === "error"
+                ? "1px solid #f5c2c7"
+                : "1px solid #badbcc",
+          }}
+        >
+          {status.message}
+        </div>
+      ) : null}
       <input
-        name="username"
-        value={form.username}
+        name="email"
+        type="email"
+        value={form.email}
         onChange={handleChange}
-        placeholder="Username"
+        placeholder="Email"
       />
       <input
         name="password"
@@ -48,7 +84,14 @@ export default function LoginPage() {
         onChange={handleChange}
         placeholder="Password"
       />
-      <button type="submit">Login</button>
+      <button type="submit" disabled={submitting}>
+        {submitting ? "Signing in..." : "Login"}
+      </button>
+      {googleEnabled ? (
+        <button type="button" onClick={handleGoogleSignIn}>
+          Continue with Google
+        </button>
+      ) : null}
       <p style={{ marginTop: "10px" }}>
         Don’t have an account? <Link href="/signup">Sign up</Link>
       </p>

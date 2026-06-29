@@ -1,14 +1,6 @@
 import { useEffect, useState } from "react";
+import { useUser } from "@/components/UserContext";
 import EditableToBuyList from "./EditableToBuyList";
-
-/** Safe localStorage reader so mobile/PWA quirks don’t break things */
-function getUserSafe() {
-  try {
-    return JSON.parse(localStorage.getItem("user") || "null");
-  } catch {
-    return null;
-  }
-}
 
 export default function ToBuyPage() {
   const [items, setItems] = useState([]);
@@ -16,26 +8,22 @@ export default function ToBuyPage() {
   const [quantity, setQuantity] = useState("1");
   const [location, setLocation] = useState(""); // empty means "choose"
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // ← show friendly errors
+  const [error, setError] = useState(null);
+  const { status } = useUser();
 
   useEffect(() => {
     const fetchItems = async () => {
       setLoading(true);
       setError(null);
 
-      const user = getUserSafe();
-      console.log("[ToBuy] user in this context =", user);
-
-      if (!user?.id) {
-        // Not logged in in this storage sandbox (e.g., installed PWA)
+      if (status !== "authenticated") {
         setItems([]);
         setLoading(false);
         return;
       }
 
       try {
-        const url = `/api/to-buy?userId=${user.id}&t=${Date.now()}`; // cache-buster
-        console.log("[ToBuy] GET", url);
+        const url = `/api/to-buy?t=${Date.now()}`;
 
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) {
@@ -48,11 +36,6 @@ export default function ToBuyPage() {
         }
 
         const data = await res.json();
-        console.log(
-          "[ToBuy] data len:",
-          Array.isArray(data) ? data.length : "not-array",
-          data,
-        );
         setItems(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("[ToBuy] GET error", err);
@@ -64,15 +47,13 @@ export default function ToBuyPage() {
     };
 
     fetchItems();
-  }, []);
+  }, [status]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
     if (!newItem.trim()) return;
 
-    const user = getUserSafe();
-    if (!user?.id) {
-      // The installed PWA has its own storage; make sure you log in there once.
+    if (status !== "authenticated") {
       window.location.href = "/login";
       return;
     }
@@ -86,7 +67,6 @@ export default function ToBuyPage() {
         body: JSON.stringify({
           name: newItem,
           quantity: qty,
-          userId: user.id,
           location: location || "Unspecified",
         }),
       });
@@ -99,7 +79,7 @@ export default function ToBuyPage() {
       }
 
       const item = await res.json();
-      setError(item.warning || null);
+      setError(null);
       setItems((prev) => [...prev, item]);
       setNewItem("");
       setQuantity("1");

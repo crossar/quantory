@@ -1,6 +1,9 @@
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { createFallbackUser } from "@/lib/authFallback";
+
+function normalizeEmail(email) {
+  return email?.trim().toLowerCase();
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -8,56 +11,45 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { username, password, firstName, lastName } = req.body;
+    const { email, password, firstName, lastName } = req.body;
+    const normalizedEmail = normalizeEmail(email);
 
-    if (!username || !password || !firstName || !lastName) {
+    if (!normalizedEmail || !password || !firstName || !lastName) {
       return res.status(400).json({ error: "Missing fields" });
     }
 
-    try {
-      const existingUser = await prisma.user.findUnique({
-        where: { username },
-      });
-
-      if (existingUser) {
-        return res.status(400).json({ error: "User already exists" });
-      }
-    } catch (error) {
-      console.error("Signup DB lookup error:", error.message);
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    try {
-      const newUser = await prisma.user.create({
-        data: {
-          username,
-          password: hashedPassword,
-          firstName,
-          lastName,
-        },
-      });
-
-      return res.status(200).json({
-        user: {
-          id: newUser.id,
-          username: newUser.username,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-        },
-      });
-    } catch (error) {
-      console.error("Signup DB create error:", error.message);
-    }
-
-    const fallbackUser = await createFallbackUser({
-      username,
-      password,
-      firstName,
-      lastName,
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
     });
 
-    return res.status(200).json({ user: fallbackUser });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ error: "An account with that email already exists" });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const name = `${firstName.trim()} ${lastName.trim()}`.trim();
+
+    const newUser = await prisma.user.create({
+      data: {
+        email: normalizedEmail,
+        passwordHash,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        name,
+      },
+    });
+
+    return res.status(201).json({
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        name: newUser.name,
+      },
+    });
   } catch (error) {
     console.error("Signup error:", error);
     res.status(500).json({ error: "Internal Server Error" });

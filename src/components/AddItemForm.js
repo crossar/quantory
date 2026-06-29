@@ -6,7 +6,6 @@ export default function AddItemForm({ location, onItemAdded }) {
     quantity: 1,
     expiresAt: "",
   });
-  const [warning, setWarning] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -16,10 +15,6 @@ export default function AddItemForm({ location, onItemAdded }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name.trim()) return;
-
-    setWarning("");
-
-    const user = JSON.parse(localStorage.getItem("user")); // get user from localStorage
 
     const res = await fetch("/api/add-item", {
       method: "POST",
@@ -31,15 +26,16 @@ export default function AddItemForm({ location, onItemAdded }) {
         location: location.toUpperCase(),
         quantity: parseInt(form.quantity),
         expiresAt: form.expiresAt || null,
-        userId: user.id,
       }),
     });
 
     if (res.ok) {
       const newItem = await res.json();
       onItemAdded(newItem);
-      setWarning(newItem.warning || "");
+
       setForm({ name: "", quantity: 1, expiresAt: "" });
+    } else if (res.status === 401) {
+      window.location.href = "/login";
     } else {
       alert("Failed to add item");
     }
@@ -68,11 +64,6 @@ export default function AddItemForm({ location, onItemAdded }) {
         onChange={handleChange}
       />
       <button type="submit">Add</button>
-      {warning ? (
-        <p style={{ color: "#a33", width: "100%", margin: "0.5rem 0 0" }}>
-          {warning}
-        </p>
-      ) : null}
     </form>
   );
 }

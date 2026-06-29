@@ -1,6 +1,4 @@
-const itemStorage = (globalThis.__homeventoryItems ??= new Map());
-
-let nextId = 1000;
+import { readFallbackStore, updateFallbackStore } from "@/lib/fallbackStore";
 
 function getItemsKey(userId) {
   return `user_${userId}`;
@@ -13,28 +11,31 @@ export async function createFallbackItem({
   quantity,
   expiresAt,
 }) {
-  const key = getItemsKey(userId);
-  const userItems = itemStorage.get(key) ?? [];
+  let newItem;
 
-  const newItem = {
-    id: nextId++,
-    userId,
-    name,
-    location,
-    quantity: parseInt(quantity),
-    expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
-    createdAt: new Date().toISOString(),
-  };
+  await updateFallbackStore((store) => {
+    newItem = {
+      id: store.counters.itemId++,
+      userId: parseInt(userId),
+      name,
+      location,
+      quantity: parseInt(quantity),
+      expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
+      createdAt: new Date().toISOString(),
+    };
 
-  userItems.push(newItem);
-  itemStorage.set(key, userItems);
+    store.items.push(newItem);
+    return store;
+  });
 
   return newItem;
 }
 
 export async function getFallbackItems(userId, filters = {}) {
-  const key = getItemsKey(userId);
-  let items = itemStorage.get(key) ?? [];
+  const normalizedUserId = parseInt(userId);
+  let items = (await readFallbackStore()).items.filter(
+    (item) => item.userId === normalizedUserId,
+  );
 
   if (filters.location) {
     items = items.filter((item) => item.location === filters.location);
@@ -56,24 +57,34 @@ export async function getFallbackItems(userId, filters = {}) {
 }
 
 export async function updateFallbackItem(id, updates) {
-  for (const [key, userItems] of itemStorage.entries()) {
-    const item = userItems.find((i) => i.id === id);
-    if (item) {
-      Object.assign(item, updates);
-      return item;
+  let updatedItem = null;
+
+  await updateFallbackStore((store) => {
+    const item = store.items.find((entry) => entry.id === id);
+    if (!item) {
+      return store;
     }
-  }
-  return null;
+
+    Object.assign(item, updates);
+    updatedItem = item;
+    return store;
+  });
+
+  return updatedItem;
 }
 
 export async function deleteFallbackItem(id) {
-  for (const [key, userItems] of itemStorage.entries()) {
-    const index = userItems.findIndex((i) => i.id === id);
-    if (index !== -1) {
-      const deleted = userItems.splice(index, 1)[0];
-      itemStorage.set(key, userItems);
-      return deleted;
+  let deletedItem = null;
+
+  await updateFallbackStore((store) => {
+    const index = store.items.findIndex((item) => item.id === id);
+    if (index === -1) {
+      return store;
     }
-  }
-  return null;
+
+    deletedItem = store.items.splice(index, 1)[0];
+    return store;
+  });
+
+  return deletedItem;
 }

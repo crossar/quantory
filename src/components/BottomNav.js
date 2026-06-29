@@ -1,18 +1,21 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import { useUser } from "./UserContext"; // 👈 import user context
 
 export default function BottomNav() {
   const router = useRouter();
   const current = router.pathname;
 
-  const { user, setUser } = useUser();
+  const { user, status } = useUser();
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
     router.push("/login");
   };
+
+  const greetingName =
+    user?.firstName || user?.name?.split(" ")[0] || user?.email || "";
 
   const links = [
     { href: "/", label: "🏠 Home" },
@@ -30,16 +33,16 @@ export default function BottomNav() {
         <div style={topRightStyle}>
           {user ? (
             <>
-              <span style={{ marginRight: "0.5rem" }}>Hi, {user.username}</span>
+              <span style={{ marginRight: "0.5rem" }}>Hi, {greetingName}</span>
               <button onClick={handleLogout} style={{ fontSize: "12px" }}>
                 Logout
               </button>
             </>
-          ) : (
+          ) : status !== "loading" ? (
             <Link href="/login" style={{ fontSize: "12px" }}>
               Login
             </Link>
-          )}
+          ) : null}
         </div>
       )}
 

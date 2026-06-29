@@ -1,6 +1,4 @@
-const toBuyStorage = (globalThis.__homeventoryToBuyItems ??= new Map());
-
-let nextId = 2000;
+import { readFallbackStore, updateFallbackStore } from "@/lib/fallbackStore";
 
 function getToBuyKey(userId) {
   return `tobuy_user_${userId}`;
@@ -12,37 +10,44 @@ export async function createFallbackToBuyItem({
   quantity,
   location,
 }) {
-  const key = getToBuyKey(userId);
-  const userItems = toBuyStorage.get(key) ?? [];
+  let newItem;
 
-  const newItem = {
-    id: nextId++,
-    userId,
-    name,
-    quantity: parseInt(quantity),
-    location,
-    createdAt: new Date().toISOString(),
-  };
+  await updateFallbackStore((store) => {
+    newItem = {
+      id: store.counters.toBuyId++,
+      userId: parseInt(userId),
+      name,
+      quantity: parseInt(quantity),
+      location,
+      createdAt: new Date().toISOString(),
+    };
 
-  userItems.push(newItem);
-  toBuyStorage.set(key, userItems);
+    store.toBuyItems.push(newItem);
+    return store;
+  });
 
   return newItem;
 }
 
 export async function getFallbackToBuyItems(userId) {
-  const key = getToBuyKey(userId);
-  return toBuyStorage.get(key) ?? [];
+  const normalizedUserId = parseInt(userId);
+  return (await readFallbackStore()).toBuyItems.filter(
+    (item) => item.userId === normalizedUserId,
+  );
 }
 
 export async function deleteFallbackToBuyItem(id) {
-  for (const [key, userItems] of toBuyStorage.entries()) {
-    const index = userItems.findIndex((i) => i.id === id);
-    if (index !== -1) {
-      const deleted = userItems.splice(index, 1)[0];
-      toBuyStorage.set(key, userItems);
-      return deleted;
+  let deletedItem = null;
+
+  await updateFallbackStore((store) => {
+    const index = store.toBuyItems.findIndex((item) => item.id === id);
+    if (index === -1) {
+      return store;
     }
-  }
-  return null;
+
+    deletedItem = store.toBuyItems.splice(index, 1)[0];
+    return store;
+  });
+
+  return deletedItem;
 }

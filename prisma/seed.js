@@ -1,16 +1,33 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcryptjs");
+
 const prisma = new PrismaClient();
 
 async function main() {
+  const passwordHash = await bcrypt.hash("demo12345", 10);
+
+  const user = await prisma.user.upsert({
+    where: { email: "demo@example.com" },
+    update: {},
+    create: {
+      email: "demo@example.com",
+      passwordHash,
+      firstName: "Demo",
+      lastName: "User",
+      name: "Demo User",
+    },
+  });
+
   await prisma.item.createMany({
     data: [
-      { name: 'Milk', location: 'FRIDGE', quantity: 1 },
-      { name: 'Peas', location: 'FREEZER', quantity: 2 },
-      { name: 'Cereal', location: 'PANTRY', quantity: 3 },
+      { name: "Milk", location: "FRIDGE", quantity: 1, userId: user.id },
+      { name: "Peas", location: "FREEZER", quantity: 2, userId: user.id },
+      { name: "Cereal", location: "PANTRY", quantity: 3, userId: user.id },
     ],
+    skipDuplicates: true,
   });
 }
 
 main()
-  .catch(e => console.error(e))
+  .catch((error) => console.error(error))
   .finally(() => prisma.$disconnect());

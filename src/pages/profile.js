@@ -1,31 +1,28 @@
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/router";
+import { signOut } from "next-auth/react";
+import { useUser } from "@/components/UserContext";
+import useAuthRedirect from "@/hooks/useAuthRedirect";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState(null);
   const [avatar, setAvatar] = useState(null);
-  const router = useRouter();
+  const { user, status } = useUser();
+  useAuthRedirect();
 
   useEffect(() => {
-    const saved = localStorage.getItem("user");
-    if (!saved) {
-      router.push("/login");
+    if (!user?.email) {
       return;
     }
-    const u = JSON.parse(saved);
-    setUser(u);
 
-    // load saved avatar (per-username)
-    const key = `avatar:${u.username}`;
+    const key = `avatar:${user.email}`;
     const savedAvatar = localStorage.getItem(key);
     if (savedAvatar) setAvatar(savedAvatar);
-  }, [router]);
+  }, [user?.email]);
 
   const initials = useMemo(() => {
     if (!user) return "";
     const a = (user.firstName || "").trim().charAt(0);
     const b = (user.lastName || "").trim().charAt(0);
-    return (a + b || (user.username || "U").slice(0, 2)).toUpperCase();
+    return (a + b || (user.email || "U").slice(0, 2)).toUpperCase();
   }, [user]);
 
   const handleAvatarChange = (e) => {
@@ -35,17 +32,19 @@ export default function ProfilePage() {
     reader.onload = () => {
       const dataUrl = reader.result;
       setAvatar(dataUrl);
-      localStorage.setItem(`avatar:${user.username}`, dataUrl);
+      localStorage.setItem(`avatar:${user.email}`, dataUrl);
     };
     reader.readAsDataURL(file);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    router.push("/login");
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/login" });
   };
 
-  if (!user) return <p className="container">Loading profile...</p>;
+  if (status === "loading")
+    return <p className="container">Loading profile...</p>;
+
+  if (!user) return <p className="container">Redirecting to login...</p>;
 
   return (
     <div className="container">
@@ -68,10 +67,8 @@ export default function ProfilePage() {
         </div>
 
         <div className="profile-simple-info">
-          <div className="profile-name">
-            {user.firstName || "N/A"} {user.lastName || ""}
-          </div>
-          <div className="profile-username">@{user.username || "N/A"}</div>
+          <div className="profile-name">{user.name || "Unnamed user"}</div>
+          <div className="profile-username">{user.email || "No email"}</div>
         </div>
 
         <button className="logout-button" onClick={handleLogout}>

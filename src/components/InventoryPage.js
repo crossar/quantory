@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useUser } from "@/components/UserContext";
 import EditableItemList from "./EditableItemList";
 import AddItemForm from "./AddItemForm";
 import BottomNav from "./BottomNav";
@@ -13,12 +14,12 @@ function sortByExpiry(items) {
 
 export default function InventoryPage({ title, location }) {
   const [items, setItems] = useState([]);
+  const { user, status } = useUser();
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) return;
+    if (status !== "authenticated") return;
 
-    fetch(`/api/items?location=${location}&userId=${user.id}`)
+    fetch(`/api/items?location=${location}`)
       .then((res) => res.json())
       .then((data) => {
         if (!Array.isArray(data)) {
@@ -37,7 +38,7 @@ export default function InventoryPage({ title, location }) {
         console.error("Failed to fetch items:", err);
         setItems([]);
       });
-  }, [location]);
+  }, [location, status, user?.id]);
 
   return (
     <>

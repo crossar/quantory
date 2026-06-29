@@ -1,0 +1,53 @@
+{
+  "counters": {
+    "userId": 1002,
+    "itemId": 1004,
+    "toBuyId": 2000
+  },
+  "users": [
+    {
+      "id": 1000,
+      "username": "localtest_1782762336332",
+      "password": "$2b$10$oz.79boeS5b75TVIKxRHSe9pFksk2RvfzbszvBsbh37HOBKOmOyQG",
+      "firstName": "Local",
+      "lastName": "Test"
+    },
+    {
+      "id": 1001,
+      "username": "goober",
+      "password": "$2b$10$bAnzZlmRX1Ys7ov4ifUCsudTZSh8FASEkmoqL54kIWgUKX8LhM2cS",
+      "firstName": "Goober",
+      "lastName": "Doo"
+    }
+  ],
+  "items": [
+    {
+      "id": 1000,
+      "userId": 1001,
+      "name": "Milk",
+      "location": "FRIDGE",
+      "quantity": 1,
+      "expiresAt": "2026-06-29T00:00:00.000Z",
+      "createdAt": "2026-06-29T19:46:43.606Z"
+    },
+    {
+      "id": 1001,
+      "userId": 1001,
+      "name": "Orange Juice",
+      "location": "FRIDGE",
+      "quantity": 1,
+      "expiresAt": "2026-06-28T00:00:00.000Z",
+      "createdAt": "2026-06-29T19:48:09.381Z"
+    },
+    {
+      "id": 1003,
+      "userId": 1000,
+      "name": "StorageCheck",
+      "location": "STORAGE",
+      "quantity": 2,
+      "expiresAt": null,
+      "createdAt": "2026-06-29T19:49:53.122Z"
+    }
+  ],
+  "toBuyItems": []
+}

@@ -1,14 +1,5 @@
 import { useState } from "react";
 
-/** Safe localStorage reader so mobile/PWA quirks don’t break things */
-function getUserSafe() {
-  try {
-    return JSON.parse(localStorage.getItem("user") || "null");
-  } catch {
-    return null;
-  }
-}
-
 export default function EditableToBuyList({ items, setItems }) {
   const [editingId, setEditingId] = useState(null);
   const [editedName, setEditedName] = useState("");
@@ -25,12 +16,6 @@ export default function EditableToBuyList({ items, setItems }) {
   };
 
   const handleSave = async (id) => {
-    const user = getUserSafe();
-    if (!user?.id) {
-      alert("You must be logged in to edit items.");
-      return;
-    }
-
     const res = await fetch("/api/to-buy", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -38,7 +23,6 @@ export default function EditableToBuyList({ items, setItems }) {
         id,
         name: editedName,
         quantity: Math.max(1, parseInt(editedQty || "1", 10)),
-        userId: user.id,
       }),
     });
 
@@ -55,16 +39,10 @@ export default function EditableToBuyList({ items, setItems }) {
     const confirmDelete = window.confirm("Remove this from your list?");
     if (!confirmDelete) return;
 
-    const user = getUserSafe();
-    if (!user?.id) {
-      alert("You must be logged in to delete items.");
-      return;
-    }
-
     const res = await fetch("/api/to-buy", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, userId: user.id }),
+      body: JSON.stringify({ id }),
     });
 
     if (res.ok) {
@@ -78,18 +56,11 @@ export default function EditableToBuyList({ items, setItems }) {
     const confirmMove = window.confirm(`Move "${item.name}" to inventory?`);
     if (!confirmMove) return;
 
-    const user = getUserSafe();
-    if (!user?.id) {
-      alert("You must be logged in to move items.");
-      return;
-    }
-
     const res = await fetch("/api/move-to-inventory", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id: item.id,
-        userId: user.id,
         name: item.name,
         quantity: item.quantity || 1,
         location: item.location,

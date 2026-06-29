@@ -1,6 +1,8 @@
 import { useState } from "react";
+import useAuthRedirect from "@/hooks/useAuthRedirect";
 
 export default function AddItemPage() {
+  useAuthRedirect();
   const [form, setForm] = useState({
     name: "",
     quantity: "",

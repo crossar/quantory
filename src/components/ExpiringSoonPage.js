@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useUser } from "@/components/UserContext";
 
 function formatDateLocal(dateStr) {
   if (!dateStr) return "—";
@@ -21,12 +22,12 @@ function isExpiringSoonLocal(dateStr) {
 
 export default function ExpiringSoonPage() {
   const [items, setItems] = useState([]);
+  const { status } = useUser();
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || !user.id) return;
+    if (status !== "authenticated") return;
 
-    fetch(`/api/items?userId=${user.id}`)
+    fetch("/api/items?expiring=true")
       .then((res) => res.json())
       .then((data) => {
         if (!Array.isArray(data)) {
@@ -44,7 +45,7 @@ export default function ExpiringSoonPage() {
         console.error("Failed to fetch expiring items:", err);
         setItems([]);
       });
-  }, []);
+  }, [status]);
 
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(

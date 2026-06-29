@@ -1,12 +1,14 @@
 import prisma from "@/lib/prisma";
-import { getFallbackItems } from "@/lib/itemFallback";
+import { getSessionUserId } from "@/lib/auth";
 
 export default async function handler(req, res) {
-  const { location, expiring, userId } = req.query;
+  const { location, expiring } = req.query;
+  const userId = await getSessionUserId(req, res);
 
-  if (!userId) return res.status(401).json({ error: "User ID required" });
+  if (!userId)
+    return res.status(401).json({ error: "Authentication required" });
 
-  let where = { userId: parseInt(userId) };
+  const where = { userId };
 
   if (location) {
     where.location = location.toUpperCase();
@@ -32,13 +34,6 @@ export default async function handler(req, res) {
     return res.status(200).json(items);
   } catch (error) {
     console.error("Items DB error:", error.message);
+    return res.status(503).json({ error: "Failed to load items" });
   }
-
-  const filters = {
-    location: location ? location.toUpperCase() : null,
-    expiring: expiring === "true",
-  };
-
-  const fallbackItems = await getFallbackItems(parseInt(userId), filters);
-  res.status(200).json(fallbackItems);
 }

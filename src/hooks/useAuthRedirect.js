@@ -1,22 +1,16 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-
-/** Safe localStorage reader */
-function getUserSafe() {
-  try {
-    return JSON.parse(localStorage.getItem("user") || "null");
-  } catch {
-    return null;
-  }
-}
+import { useUser } from "@/components/UserContext";
 
 export default function useAuthRedirect() {
   const router = useRouter();
+  const { status } = useUser();
 
   useEffect(() => {
-    const user = getUserSafe();
-    if (!user) {
-      router.replace("/login"); // redirect to login if not found
+    if (status === "unauthenticated") {
+      router.replace("/login");
     }
-  }, [router]);
+  }, [router, status]);
+
+  return status;
 }
