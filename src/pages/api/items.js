@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { getFallbackItems } from "@/lib/itemFallback";
 
 export default async function handler(req, res) {
   const { location, expiring, userId } = req.query;
@@ -28,9 +29,16 @@ export default async function handler(req, res) {
       orderBy: { expiresAt: "asc" },
     });
 
-    res.status(200).json(items);
+    return res.status(200).json(items);
   } catch (error) {
-    console.error("Error fetching items:", error);
-    res.status(500).json({ error: "Failed to fetch items" });
+    console.error("Items DB error:", error.message);
   }
+
+  const filters = {
+    location: location ? location.toUpperCase() : null,
+    expiring: expiring === "true",
+  };
+
+  const fallbackItems = await getFallbackItems(parseInt(userId), filters);
+  res.status(200).json(fallbackItems);
 }

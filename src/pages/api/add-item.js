@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { createFallbackItem } from "@/lib/itemFallback";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -22,9 +23,18 @@ export default async function handler(req, res) {
       },
     });
 
-    res.status(200).json(item);
-  } catch (err) {
-    console.error("Error adding item:", err);
-    res.status(500).json({ error: "Failed to add item" });
+    return res.status(200).json(item);
+  } catch (error) {
+    console.error("Add-item DB error:", error.message);
   }
+
+  const fallbackItem = await createFallbackItem({
+    userId,
+    name,
+    location: location.toUpperCase(),
+    quantity,
+    expiresAt,
+  });
+
+  res.status(200).json(fallbackItem);
 }

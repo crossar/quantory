@@ -21,11 +21,11 @@ export default function LoginPage() {
       body: JSON.stringify(form),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
     if (res.ok) {
       localStorage.setItem("user", JSON.stringify(data.user));
-      setUser(data.user); // ✅ this updates everywhere
+      setUser(data.user);
       router.push("/");
     } else {
       alert(data.error || "Login failed");

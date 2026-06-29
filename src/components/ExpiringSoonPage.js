@@ -29,17 +29,26 @@ export default function ExpiringSoonPage() {
     fetch(`/api/items?userId=${user.id}`)
       .then((res) => res.json())
       .then((data) => {
+        if (!Array.isArray(data)) {
+          console.error("Items API returned non-array:", data);
+          setItems([]);
+          return;
+        }
         const expiringSoon = data
           .filter((item) => isExpiringSoonLocal(item.expiresAt))
           .sort((a, b) => new Date(a.expiresAt) - new Date(b.expiresAt));
 
         setItems(expiringSoon);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch expiring items:", err);
+        setItems([]);
       });
   }, []);
 
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this item?"
+      "Are you sure you want to delete this item?",
     );
     if (!confirmDelete) return;
 

@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { updateFallbackItem } from "@/lib/itemFallback";
 
 export default async function handler(req, res) {
   if (req.method !== "PUT") {
@@ -21,8 +22,20 @@ export default async function handler(req, res) {
       },
     });
 
-    res.status(200).json(updated);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to update item" });
+    return res.status(200).json(updated);
+  } catch (error) {
+    console.error("Edit-item DB error:", error.message);
   }
+
+  const updated = await updateFallbackItem(parseInt(id), {
+    name,
+    quantity: parseInt(quantity),
+    expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
+  });
+
+  if (updated) {
+    return res.status(200).json(updated);
+  }
+
+  res.status(404).json({ error: "Item not found" });
 }

@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { deleteFallbackItem } from "@/lib/itemFallback";
 
 export default async function handler(req, res) {
   if (req.method !== "DELETE") {
@@ -15,8 +16,15 @@ export default async function handler(req, res) {
     await prisma.item.delete({
       where: { id: parseInt(id) },
     });
-    res.status(200).json({ message: "Item deleted" });
+    return res.status(200).json({ message: "Item deleted" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete item" });
+    console.error("Delete-item DB error:", error.message);
   }
+
+  const deleted = await deleteFallbackItem(parseInt(id));
+  if (deleted) {
+    return res.status(200).json({ message: "Item deleted" });
+  }
+
+  res.status(404).json({ error: "Item not found" });
 }

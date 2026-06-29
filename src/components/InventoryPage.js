@@ -21,12 +21,21 @@ export default function InventoryPage({ title, location }) {
     fetch(`/api/items?location=${location}&userId=${user.id}`)
       .then((res) => res.json())
       .then((data) => {
+        if (!Array.isArray(data)) {
+          console.error("Items API returned non-array:", data);
+          setItems([]);
+          return;
+        }
         const sorted = [...data].sort((a, b) => {
           const aDate = a.expiresAt ? new Date(a.expiresAt) : Infinity;
           const bDate = b.expiresAt ? new Date(b.expiresAt) : Infinity;
           return aDate - bDate;
         });
         setItems(sorted);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch items:", err);
+        setItems([]);
       });
   }, [location]);
 
