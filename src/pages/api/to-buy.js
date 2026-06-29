@@ -1,4 +1,9 @@
 import prisma from "@/lib/prisma";
+import {
+  createFallbackToBuyItem,
+  getFallbackToBuyItems,
+  deleteFallbackToBuyItem,
+} from "@/lib/toBuyFallback";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -12,7 +17,7 @@ export default async function handler(req, res) {
     "query=",
     req.query,
     "body=",
-    req.body
+    req.body,
   );
 
   if (!userId) {
@@ -42,9 +47,17 @@ export default async function handler(req, res) {
       console.log("[API /to-buy POST] created:", newItem);
       return res.status(200).json(newItem);
     } catch (error) {
-      console.error("❌ Error creating to-buy item:", error);
-      return res.status(500).json({ error: "Failed to create to-buy item" });
+      console.error("To-buy POST DB error:", error.message);
     }
+
+    const fallbackItem = await createFallbackToBuyItem({
+      userId,
+      name,
+      quantity,
+      location,
+    });
+
+    return res.status(200).json(fallbackItem);
   } else if (req.method === "GET") {
     try {
       console.log("[API /to-buy GET] fetching items for userId:", userId);
@@ -57,9 +70,11 @@ export default async function handler(req, res) {
       console.log("[API /to-buy GET] found items:", items.length);
       return res.status(200).json(items);
     } catch (error) {
-      console.error("❌ Error fetching to-buy items:", error);
-      return res.status(500).json({ error: "Failed to fetch items" });
+      console.error("To-buy GET DB error:", error.message);
     }
+
+    const fallbackItems = await getFallbackToBuyItems(userId);
+    return res.status(200).json(fallbackItems);
   } else if (req.method === "DELETE") {
     const { id } = req.body;
 
@@ -76,9 +91,15 @@ export default async function handler(req, res) {
       console.log("[API /to-buy DELETE] deleted id:", id);
       return res.status(200).json({ success: true });
     } catch (error) {
-      console.error("❌ Error deleting to-buy item:", error);
-      return res.status(500).json({ error: "Failed to delete item" });
+      console.error("To-buy DELETE DB error:", error.message);
     }
+
+    const deleted = await deleteFallbackToBuyItem(parseInt(id));
+    if (deleted) {
+      return res.status(200).json({ success: true });
+    }
+
+    return res.status(404).json({ error: "Item not found" });
   } else if (req.method === "PUT") {
     const { id, name, quantity } = req.body;
 
@@ -102,9 +123,10 @@ export default async function handler(req, res) {
       console.log("[API /to-buy PUT] updated:", updatedItem);
       return res.status(200).json(updatedItem);
     } catch (error) {
-      console.error("❌ Error updating to-buy item:", error.message);
-      return res.status(500).json({ error: "Failed to update to-buy item" });
+      console.error("To-buy PUT DB error:", error.message);
     }
+
+    res.status(500).json({ error: "Failed to update to-buy item" });
   } else {
     console.warn("[API /to-buy] Method not allowed:", req.method);
     return res.status(405).json({ error: "Method not allowed" });

@@ -1,4 +1,9 @@
 import prisma from "@/lib/prisma";
+import {
+  deleteFallbackToBuyItem,
+  getFallbackToBuyItems,
+} from "@/lib/toBuyFallback";
+import { createFallbackItem } from "@/lib/itemFallback";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -37,7 +42,25 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ message: "Moved to inventory" });
   } catch (error) {
-    console.error("Move failed:", error);
-    return res.status(500).json({ error: "Failed to move item" });
+    console.error("Move DB error:", error.message);
   }
+
+  const toBuyItems = await getFallbackToBuyItems(parseInt(userId));
+  const item = toBuyItems.find((i) => i.id === parseInt(id));
+
+  if (!item) {
+    return res.status(404).json({ error: "Item not found" });
+  }
+
+  await createFallbackItem({
+    userId: parseInt(userId),
+    name: item.name,
+    location: item.location,
+    quantity: item.quantity || 1,
+    expiresAt: item.expiresAt || null,
+  });
+
+  await deleteFallbackToBuyItem(parseInt(id));
+
+  return res.status(200).json({ message: "Moved to inventory" });
 }
