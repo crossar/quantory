@@ -8,7 +8,7 @@ export default function useAuthRedirect() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.replace("/login");
+      router.replace("/");
     }
   }, [router, status]);
 

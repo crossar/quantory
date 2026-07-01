@@ -1,8 +1,18 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import BottomNav from "./BottomNav";
+import { useUser } from "./UserContext";
 
 export default function Layout({ children }) {
   const [notice, setNotice] = useState("");
+  const router = useRouter();
+  const { user, status } = useUser();
+
+  const hideNavRoutes = ["/login", "/signup"];
+  const isUnauthenticatedLanding =
+    router.pathname === "/" && status !== "authenticated";
+  const showBottomNav =
+    !hideNavRoutes.includes(router.pathname) && !isUnauthenticatedLanding;
 
   useEffect(() => {
     const readNotice = () => {
@@ -48,6 +58,22 @@ export default function Layout({ children }) {
         margin: "auto",
       }}
     >
+      {user?.isDemo ? (
+        <div
+          style={{
+            marginBottom: "1rem",
+            padding: "0.5rem 0.75rem",
+            borderRadius: 10,
+            background: "#e8f4ff",
+            color: "#0d3c66",
+            border: "1px solid #b9dbfb",
+            fontSize: "0.9rem",
+          }}
+        >
+          Demo Mode – Changes are temporary and reset periodically.
+        </div>
+      ) : null}
+
       {notice ? (
         <div
           style={{
@@ -82,7 +108,7 @@ export default function Layout({ children }) {
         </div>
       ) : null}
       {children}
-      <BottomNav />
+      {showBottomNav ? <BottomNav /> : null}
     </div>
   );
 }

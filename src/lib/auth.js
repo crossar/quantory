@@ -5,6 +5,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/lib/prisma";
+import { DEMO_EMAIL, DEMO_USERNAME, ensureDemoUserWithSeed } from "@/lib/demo";
 
 function normalizeUsername(username) {
   return username?.trim().toLowerCase();
@@ -28,6 +29,29 @@ function splitName(name) {
 }
 
 const providers = [
+  CredentialsProvider({
+    id: "demo",
+    name: "Demo Account",
+    credentials: {},
+    async authorize() {
+      const user = await ensureDemoUserWithSeed(prisma);
+
+      return {
+        id: String(user.id),
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        name:
+          user.name ||
+          [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+          user.username ||
+          user.email,
+        image: user.image,
+        isDemo: true,
+      };
+    },
+  }),
   CredentialsProvider({
     name: "Username and Password",
     credentials: {
@@ -119,6 +143,10 @@ export const authOptions = {
       return true;
     },
     async jwt({ token, user }) {
+      if (typeof user?.isDemo !== "undefined") {
+        token.isDemo = Boolean(user.isDemo);
+      }
+
       const userId =
         typeof user?.id === "number"
           ? user.id
@@ -170,6 +198,7 @@ export const authOptions = {
         if (dbUser) {
           token.userId = dbUser.id;
           token.username = dbUser.username;
+          token.email = dbUser.email;
           token.firstName = dbUser.firstName;
           token.lastName = dbUser.lastName;
           token.name =
@@ -178,6 +207,8 @@ export const authOptions = {
             dbUser.username ||
             dbUser.email;
           token.picture = dbUser.image;
+          token.isDemo =
+            dbUser.username === DEMO_USERNAME || dbUser.email === DEMO_EMAIL;
         }
       }
 
@@ -196,6 +227,7 @@ export const authOptions = {
         session.user.firstName = token.firstName || null;
         session.user.lastName = token.lastName || null;
         session.user.image = token.picture || session.user.image || null;
+        session.user.isDemo = Boolean(token.isDemo);
       }
 
       return session;

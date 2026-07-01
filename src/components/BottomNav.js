@@ -11,7 +11,7 @@ export default function BottomNav() {
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
-    router.push("/login");
+    router.push("/");
   };
 
   const greetingName =
@@ -43,7 +43,7 @@ export default function BottomNav() {
               </button>
             </>
           ) : status !== "loading" ? (
-            <Link href="/login" style={{ fontSize: "12px" }}>
+            <Link href="/" style={{ fontSize: "12px" }}>
               Login
             </Link>
           ) : null}
