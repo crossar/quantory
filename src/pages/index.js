@@ -15,6 +15,7 @@ export default function Home() {
     { name: "Freezer", href: "/freezer" },
     { name: "Pantry", href: "/pantry" },
     { name: "Storage Room", href: "/storage-room" },
+    { name: "Household", href: "/household" },
     { name: "Medicine", href: "/medicine" },
   ];
 
@@ -107,6 +108,14 @@ export default function Home() {
               style={{ textAlign: "center", fontWeight: 600 }}
             >
               Create Account
+            </Link>
+
+            <Link
+              href="/login"
+              className="card"
+              style={{ textAlign: "center", fontWeight: 500 }}
+            >
+              Log In
             </Link>
           </div>
         </div>

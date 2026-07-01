@@ -183,6 +183,7 @@ export default function ToBuyPage() {
           <option value="FREEZER">❄️ Freezer</option>
           <option value="PANTRY">🧺 Pantry</option>
           <option value="STORAGE">📦 Storage</option>
+          <option value="HOUSEHOLD">🧼 Household</option>
           <option value="MEDICINE">💊 Medicine</option>
         </select>
 

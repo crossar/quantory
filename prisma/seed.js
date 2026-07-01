@@ -42,6 +42,18 @@ const demoInventory = [
     expiresInDays: null,
   },
   {
+    name: "Trash Bags",
+    location: "HOUSEHOLD",
+    quantity: 2,
+    expiresInDays: null,
+  },
+  {
+    name: "Dish Sponges",
+    location: "HOUSEHOLD",
+    quantity: 4,
+    expiresInDays: null,
+  },
+  {
     name: "Ibuprofen",
     location: "MEDICINE",
     quantity: 1,
@@ -60,6 +72,7 @@ const demoToBuy = [
   { name: "Ground Turkey", quantity: 2, location: "FREEZER" },
   { name: "Olive Oil", quantity: 1, location: "PANTRY" },
   { name: "Dish Soap", quantity: 1, location: "STORAGE" },
+  { name: "Paper Towels", quantity: 2, location: "HOUSEHOLD" },
   { name: "Vitamin C", quantity: 1, location: "MEDICINE" },
 ];
 
