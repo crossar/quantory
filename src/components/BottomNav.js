@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { useUser } from "./UserContext"; // 👈 import user context
+import { useUser } from "./UserContext";
 
 export default function BottomNav() {
   const router = useRouter();
@@ -37,13 +37,20 @@ export default function BottomNav() {
         <div style={topRightStyle}>
           {user ? (
             <>
-              <span style={{ marginRight: "0.5rem" }}>Hi, {greetingName}</span>
-              <button onClick={handleLogout} style={{ fontSize: "12px" }}>
+              <span
+                style={{
+                  marginRight: "0.5rem",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                Hi, {greetingName}
+              </span>
+              <button onClick={handleLogout} className="nav-small-button">
                 Logout
               </button>
             </>
           ) : status !== "loading" ? (
-            <Link href="/" style={{ fontSize: "12px" }}>
+            <Link href="/" className="nav-small-link">
               Login
             </Link>
           ) : null}
@@ -72,7 +79,7 @@ const topRightStyle = {
   position: "fixed",
   top: "10px",
   right: "10px",
-  fontSize: "12px",
+  fontSize: "0.8rem",
   zIndex: 1001,
 };
 
@@ -84,16 +91,18 @@ const navStyle = {
   display: "flex",
   justifyContent: "space-around",
   alignItems: "center",
-  background: "#f9f9f9",
+  background: "var(--background-elevated)",
   padding: "0.75rem 0",
-  borderTop: "1px solid #ccc",
-  fontSize: "14px",
+  borderTop: "1px solid var(--border-color)",
+  fontSize: "0.9rem",
   zIndex: 1000,
+  boxShadow: "0 -10px 24px rgba(15, 23, 42, 0.05)",
 };
 
 const linkStyle = {
   textDecoration: "none",
-  color: "#333",
+  color: "var(--text-secondary)",
   flex: 1,
   textAlign: "center",
+  transition: "color 140ms ease",
 };

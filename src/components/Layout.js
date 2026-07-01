@@ -3,8 +3,17 @@ import { useRouter } from "next/router";
 import BottomNav from "./BottomNav";
 import { useUser } from "./UserContext";
 
+const THEME_STORAGE_KEY = "homeventory-theme";
+
 export default function Layout({ children }) {
   const [notice, setNotice] = useState("");
+  const [theme, setTheme] = useState(() => {
+    if (typeof document === "undefined") {
+      return "light";
+    }
+
+    return document.documentElement.dataset.theme || "light";
+  });
   const router = useRouter();
   const { user, status } = useUser();
 
@@ -15,6 +24,22 @@ export default function Layout({ children }) {
     !hideNavRoutes.includes(router.pathname) && !isUnauthenticatedLanding;
 
   useEffect(() => {
+    try {
+      const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
+      const initialTheme =
+        storedTheme === "light" || storedTheme === "dark"
+          ? storedTheme
+          : systemTheme;
+
+      setTheme(initialTheme);
+    } catch {
+      setTheme("light");
+    }
+
     const readNotice = () => {
       try {
         return (
@@ -40,6 +65,26 @@ export default function Layout({ children }) {
     };
   }, []);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {}
+
+    const themeColor = theme === "dark" ? "#0b1020" : "#f8fbfe";
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute("content", themeColor);
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((current) => (current === "dark" ? "light" : "dark"));
+  };
+
   const dismissNotice = () => {
     setNotice("");
 
@@ -52,55 +97,34 @@ export default function Layout({ children }) {
   return (
     <div
       style={{
+        width: "min(100%, 1120px)",
         padding: "1rem",
         paddingBottom: "4rem",
-        maxWidth: "600px",
         margin: "auto",
       }}
     >
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className="theme-toggle"
+        aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      >
+        {theme === "dark" ? "☀ Light" : "☾ Dark"}
+      </button>
+
       {user?.isDemo ? (
-        <div
-          style={{
-            marginBottom: "1rem",
-            padding: "0.5rem 0.75rem",
-            borderRadius: 10,
-            background: "#e8f4ff",
-            color: "#0d3c66",
-            border: "1px solid #b9dbfb",
-            fontSize: "0.9rem",
-          }}
-        >
+        <div className="demo-banner">
           Demo Mode – Changes are temporary and reset periodically.
         </div>
       ) : null}
 
       {notice ? (
-        <div
-          style={{
-            marginBottom: "1rem",
-            padding: "0.75rem 1rem",
-            borderRadius: 10,
-            background: "#fff3cd",
-            color: "#6b4f00",
-            border: "1px solid #f2d58a",
-            display: "flex",
-            gap: "0.75rem",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-          }}
-        >
+        <div className="notice-banner">
           <span>{notice}</span>
           <button
             type="button"
             onClick={dismissNotice}
-            style={{
-              border: 0,
-              background: "transparent",
-              color: "inherit",
-              cursor: "pointer",
-              fontSize: "1rem",
-              lineHeight: 1,
-            }}
+            className="notice-dismiss"
             aria-label="Dismiss notice"
           >
             ×
