@@ -18,7 +18,7 @@ export default function Document() {
             __html: `
               (function() {
                 try {
-                  var storageKey = 'homeventory-theme';
+                  var storageKey = 'quantory-theme';
                   var storedTheme = localStorage.getItem(storageKey);
                   var systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                   var theme = storedTheme === 'dark' || storedTheme === 'light' ? storedTheme : systemTheme;

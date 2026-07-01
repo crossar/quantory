@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import BottomNav from "./BottomNav";
 import { useUser } from "./UserContext";
 
-const THEME_STORAGE_KEY = "homeventory-theme";
+const THEME_STORAGE_KEY = "quantory-theme";
 
 export default function Layout({ children }) {
   const [notice, setNotice] = useState("");
@@ -52,10 +52,10 @@ export default function Layout({ children }) {
 
     syncNotice();
 
-    window.addEventListener("homeventory:notice", syncNotice);
+    window.addEventListener("quantory:notice", syncNotice);
 
     return () => {
-      window.removeEventListener("homeventory:notice", syncNotice);
+      window.removeEventListener("quantory:notice", syncNotice);
     };
   }, []);
 

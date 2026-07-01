@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 
-const fallbackDataDir = path.join(process.cwd(), ".homeventory");
+const fallbackDataDir = path.join(process.cwd(), ".quantory");
 const fallbackDataFile = path.join(fallbackDataDir, "fallback-data.json");
 
 function createDefaultStore() {
