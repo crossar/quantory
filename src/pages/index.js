@@ -65,7 +65,9 @@ export default function Home() {
           <div className="landing-shell">
             <header className="landing-hero">
               <p className="landing-eyebrow">Homeventory</p>
-              <h1 className="landing-title">Organize your home inventory with clarity.</h1>
+              <h1 className="landing-title">
+                Organize your home inventory with clarity.
+              </h1>
               <p className="landing-subtitle">
                 Manage pantry, freezer, fridge, storage, household, medicine,
                 and shopping lists in one clean workspace.
