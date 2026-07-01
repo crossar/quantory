@@ -61,62 +61,71 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div
-          className="container"
-          style={{ maxWidth: 720, paddingTop: "3rem" }}
-        >
-          <h1 style={{ marginBottom: "0.5rem" }}>Homeventory</h1>
-          <p style={{ marginBottom: "1.5rem", color: "#444" }}>
-            Explore the full app instantly with demo data, or create an account
-            to save your own inventory.
-          </p>
+        <div className="auth-page">
+          <div className="auth-shell">
+            <div className="auth-grid auth-grid-2up">
+              <section className="auth-hero">
+                <div>
+                  <h1 style={{ marginBottom: "0.6rem" }}>Homeventory</h1>
+                  <p className="auth-copy">
+                    Explore the full app instantly with demo data, or create an
+                    account to save your own inventory.
+                  </p>
+                </div>
 
-          {error ? (
-            <div
-              style={{
-                marginBottom: "1rem",
-                padding: "0.75rem 1rem",
-                borderRadius: 10,
-                background: "#fdecea",
-                color: "#9b1c1c",
-                border: "1px solid #f5c2c7",
-              }}
-            >
-              {error}
+                <div className="auth-points">
+                  <div className="auth-point">
+                    Track fridge, freezer, pantry, storage, household, and
+                    medicine items.
+                  </div>
+                  <div className="auth-point">
+                    Demo data is preloaded and resets periodically.
+                  </div>
+                  <div className="auth-point">
+                    Real accounts keep your saved data private and persistent.
+                  </div>
+                </div>
+              </section>
+
+              <section className="auth-card">
+                <div style={{ marginBottom: "1rem" }}>
+                  <h2>Get started</h2>
+                  <p className="auth-note">
+                    Choose demo mode for a quick tour, or create an account for
+                    your own data.
+                  </p>
+                </div>
+
+                {error ? <div className="auth-error">{error}</div> : null}
+
+                <div className="auth-form">
+                  <button
+                    type="button"
+                    onClick={handleTryDemo}
+                    disabled={demoLoading}
+                    className="auth-button auth-button-primary"
+                  >
+                    {demoLoading ? "Starting Demo..." : "Try Demo"}
+                  </button>
+
+                  <Link
+                    href="/signup"
+                    className="auth-button auth-button-secondary"
+                    style={{ textAlign: "center" }}
+                  >
+                    Create Account
+                  </Link>
+
+                  <Link
+                    href="/login"
+                    className="auth-button auth-button-tertiary"
+                    style={{ textAlign: "center" }}
+                  >
+                    Log In
+                  </Link>
+                </div>
+              </section>
             </div>
-          ) : null}
-
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
-          >
-            <button
-              type="button"
-              onClick={handleTryDemo}
-              disabled={demoLoading}
-              style={{
-                width: "100%",
-                padding: "0.8rem 1rem",
-                fontSize: "1rem",
-              }}
-            >
-              {demoLoading ? "Starting Demo..." : "Try Demo"}
-            </button>
-
-            <Link
-              href="/signup"
-              className="card"
-              style={{ textAlign: "center", fontWeight: 600 }}
-            >
-              Create Account
-            </Link>
-
-            <Link
-              href="/login"
-              className="card"
-              style={{ textAlign: "center", fontWeight: 500 }}
-            >
-              Log In
-            </Link>
           </div>
         </div>
       )}

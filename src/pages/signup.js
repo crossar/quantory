@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { signIn, useSession } from "next-auth/react";
 
@@ -73,62 +74,77 @@ export default function SignupPage() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Sign Up</h1>
-      {status.message ? (
-        <div
-          style={{
-            marginBottom: "1rem",
-            padding: "0.75rem 1rem",
-            borderRadius: 10,
-            background: status.type === "error" ? "#fdecea" : "#edf7ed",
-            color: status.type === "error" ? "#9b1c1c" : "#1f5f3a",
-            border:
-              status.type === "error"
-                ? "1px solid #f5c2c7"
-                : "1px solid #badbcc",
-          }}
-        >
-          {status.message}
-        </div>
-      ) : null}
-      <input
-        name="firstName"
-        placeholder="First Name"
-        value={form.firstName}
-        onChange={handleChange}
-        required
-      />
-      <input
-        name="lastName"
-        placeholder="Last Name"
-        value={form.lastName}
-        onChange={handleChange}
-        required
-      />
-      <input
-        name="username"
-        placeholder="Username"
-        value={form.username}
-        onChange={handleChange}
-        required
-      />
-      <input
-        name="password"
-        type="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={handleChange}
-        required
-      />
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Creating..." : "Sign Up"}
-      </button>
-      {googleEnabled ? (
-        <button type="button" onClick={handleGoogleSignIn}>
-          Continue with Google
-        </button>
-      ) : null}
-    </form>
+    <div className="auth-page">
+      <div className="auth-shell" style={{ maxWidth: 560 }}>
+        <section className="auth-card">
+          <div style={{ marginBottom: "1rem" }}>
+            <span className="auth-kicker">Create your workspace</span>
+            <h1 style={{ marginTop: "0.5rem" }}>Sign Up</h1>
+            <p className="auth-note">
+              Create a personal account so your inventory stays saved under your
+              own login.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="auth-form">
+            {status.message ? (
+              <div className="auth-error">{status.message}</div>
+            ) : null}
+            <input
+              className="auth-field"
+              name="firstName"
+              placeholder="First Name"
+              value={form.firstName}
+              onChange={handleChange}
+              required
+            />
+            <input
+              className="auth-field"
+              name="lastName"
+              placeholder="Last Name"
+              value={form.lastName}
+              onChange={handleChange}
+              required
+            />
+            <input
+              className="auth-field"
+              name="username"
+              placeholder="Username"
+              value={form.username}
+              onChange={handleChange}
+              required
+            />
+            <input
+              className="auth-field"
+              name="password"
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+            <button
+              type="submit"
+              disabled={submitting}
+              className="auth-button auth-button-primary"
+            >
+              {submitting ? "Creating..." : "Sign Up"}
+            </button>
+            {googleEnabled ? (
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                className="auth-button auth-button-secondary"
+              >
+                Continue with Google
+              </button>
+            ) : null}
+            <p className="auth-link-row">
+              Already have an account? <Link href="/login">Log in</Link>
+            </p>
+          </form>
+        </section>
+      </div>
+    </div>
   );
 }

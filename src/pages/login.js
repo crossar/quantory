@@ -51,49 +51,59 @@ export default function LoginPage() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
-      {status.message ? (
-        <div
-          style={{
-            marginBottom: "1rem",
-            padding: "0.75rem 1rem",
-            borderRadius: 10,
-            background: status.type === "error" ? "#fdecea" : "#edf7ed",
-            color: status.type === "error" ? "#9b1c1c" : "#1f5f3a",
-            border:
-              status.type === "error"
-                ? "1px solid #f5c2c7"
-                : "1px solid #badbcc",
-          }}
-        >
-          {status.message}
-        </div>
-      ) : null}
-      <input
-        name="username"
-        value={form.username}
-        onChange={handleChange}
-        placeholder="Username"
-      />
-      <input
-        name="password"
-        type="password"
-        value={form.password}
-        onChange={handleChange}
-        placeholder="Password"
-      />
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Signing in..." : "Login"}
-      </button>
-      {googleEnabled ? (
-        <button type="button" onClick={handleGoogleSignIn}>
-          Continue with Google
-        </button>
-      ) : null}
-      <p style={{ marginTop: "10px" }}>
-        Don’t have an account? <Link href="/signup">Sign up</Link>
-      </p>
-    </form>
+    <div className="auth-page">
+      <div className="auth-shell" style={{ maxWidth: 560 }}>
+        <section className="auth-card">
+          <div style={{ marginBottom: "1rem" }}>
+            <span className="auth-kicker">Welcome back</span>
+            <h1 style={{ marginTop: "0.5rem" }}>Log In</h1>
+            <p className="auth-note">
+              Use your existing account to keep your inventory saved between
+              sessions.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="auth-form">
+            {status.message ? (
+              <div className="auth-error">{status.message}</div>
+            ) : null}
+            <input
+              className="auth-field"
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              placeholder="Username"
+            />
+            <input
+              className="auth-field"
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="Password"
+            />
+            <button
+              type="submit"
+              disabled={submitting}
+              className="auth-button auth-button-primary"
+            >
+              {submitting ? "Signing in..." : "Login"}
+            </button>
+            {googleEnabled ? (
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                className="auth-button auth-button-secondary"
+              >
+                Continue with Google
+              </button>
+            ) : null}
+            <p className="auth-link-row">
+              Don’t have an account? <Link href="/signup">Sign up</Link>
+            </p>
+          </form>
+        </section>
+      </div>
+    </div>
   );
 }
