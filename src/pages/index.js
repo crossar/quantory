@@ -45,7 +45,18 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Home Inventory</title>
+        <title>Quantory: Inventory Manager</title>
+        <meta
+          name="description"
+          content="Quantory: Inventory Manager helps you track pantry, freezer, fridge, storage, household, medicine, and shopping lists in one place."
+        />
+        <meta name="application-name" content="Quantory: Inventory Manager" />
+        <meta property="og:title" content="Quantory: Inventory Manager" />
+        <meta
+          property="og:description"
+          content="Manage your household inventory with a clean, organized workflow."
+        />
+        <meta name="twitter:title" content="Quantory: Inventory Manager" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </Head>
 
@@ -64,7 +75,7 @@ export default function Home() {
         <div className="landing-page">
           <div className="landing-shell">
             <header className="landing-hero">
-              <p className="landing-eyebrow">Homeventory</p>
+              <p className="landing-eyebrow">Quantory: Inventory Manager</p>
               <h1 className="landing-title">
                 Organize your home inventory with clarity.
               </h1>

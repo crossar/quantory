@@ -1,6 +1,6 @@
 {
-  "name": "My Inventory App",
-  "short_name": "Inventory",
+  "name": "Quantory: Inventory Manager",
+  "short_name": "Quantory",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

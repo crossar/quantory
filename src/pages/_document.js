@@ -7,6 +7,11 @@ export default function Document() {
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#f8fbfe" />
         <meta name="color-scheme" content="light dark" />
+        <meta name="application-name" content="Quantory: Inventory Manager" />
+        <meta
+          name="apple-mobile-web-app-title"
+          content="Quantory: Inventory Manager"
+        />
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <script
           dangerouslySetInnerHTML={{
