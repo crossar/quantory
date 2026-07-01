@@ -61,65 +61,83 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div className="auth-page">
-          <div className="auth-shell">
-            <div className="auth-grid auth-grid-2up">
-              <section className="auth-hero">
-                <div>
-                  <h1 style={{ marginBottom: "0.6rem" }}>Homeventory</h1>
-                  <p className="auth-copy">
-                    Explore the full app instantly with demo data, or create an
-                    account to save your own inventory.
+        <div className="landing-page">
+          <div className="landing-shell">
+            <header className="landing-hero">
+              <p className="landing-eyebrow">Homeventory</p>
+              <h1 className="landing-title">Organize your home inventory with clarity.</h1>
+              <p className="landing-subtitle">
+                Manage pantry, freezer, fridge, storage, household, medicine,
+                and shopping lists in one clean workspace.
+              </p>
+            </header>
+
+            <div className="landing-grid">
+              <section className="landing-card landing-info-card">
+                <div className="landing-card-header">
+                  <h2>Everything you need in one place</h2>
+                  <p>
+                    Built for day-to-day household tracking with a simple,
+                    reliable workflow.
                   </p>
                 </div>
 
-                <div className="auth-points">
-                  <div className="auth-point">
-                    Track fridge, freezer, pantry, storage, household, and
-                    medicine items.
-                  </div>
-                  <div className="auth-point">
-                    Demo data is preloaded and resets periodically.
-                  </div>
-                  <div className="auth-point">
-                    Real accounts keep your saved data private and persistent.
-                  </div>
+                <div className="landing-feature-grid">
+                  <article className="landing-feature-card">
+                    <h3>Unified Categories</h3>
+                    <p>
+                      Track fridge, freezer, pantry, storage, household, and
+                      medicine items with consistent structure.
+                    </p>
+                  </article>
+                  <article className="landing-feature-card">
+                    <h3>Demo Exploration</h3>
+                    <p>
+                      Instantly explore the full experience with pre-populated
+                      sample data.
+                    </p>
+                  </article>
+                  <article className="landing-feature-card">
+                    <h3>Personal Accounts</h3>
+                    <p>
+                      Keep your own inventory private and persistent across
+                      sessions and devices.
+                    </p>
+                  </article>
                 </div>
               </section>
 
-              <section className="auth-card">
-                <div style={{ marginBottom: "1rem" }}>
-                  <h2>Get started</h2>
-                  <p className="auth-note">
+              <section className="landing-card landing-cta-card">
+                <div className="landing-card-header">
+                  <h2>Get Started</h2>
+                  <p>
                     Choose demo mode for a quick tour, or create an account for
-                    your own data.
+                    your own saved data.
                   </p>
                 </div>
 
                 {error ? <div className="auth-error">{error}</div> : null}
 
-                <div className="auth-form">
+                <div className="landing-actions">
                   <button
                     type="button"
                     onClick={handleTryDemo}
                     disabled={demoLoading}
-                    className="auth-button auth-button-primary"
+                    className="auth-button landing-btn landing-btn-primary"
                   >
                     {demoLoading ? "Starting Demo..." : "Try Demo"}
                   </button>
 
                   <Link
                     href="/signup"
-                    className="auth-button auth-button-secondary"
-                    style={{ textAlign: "center" }}
+                    className="auth-button landing-btn landing-btn-secondary"
                   >
                     Create Account
                   </Link>
 
                   <Link
                     href="/login"
-                    className="auth-button auth-button-tertiary"
-                    style={{ textAlign: "center" }}
+                    className="auth-button landing-btn landing-btn-tertiary"
                   >
                     Log In
                   </Link>

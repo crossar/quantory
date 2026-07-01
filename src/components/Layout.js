@@ -7,13 +7,7 @@ const THEME_STORAGE_KEY = "homeventory-theme";
 
 export default function Layout({ children }) {
   const [notice, setNotice] = useState("");
-  const [theme, setTheme] = useState(() => {
-    if (typeof document === "undefined") {
-      return "light";
-    }
-
-    return document.documentElement.dataset.theme || "light";
-  });
+  const [theme, setTheme] = useState("light");
   const router = useRouter();
   const { user, status } = useUser();
 
